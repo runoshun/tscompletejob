@@ -1,0 +1,115 @@
+Before:
+  let current_buf = bufnr("%")
+  call tscompletejob#init_plugin(1)
+  call tscompletejob#restart()
+
+  let sample1 = tscompletejob#utils#join_path(
+                    \ tscompletejob#get_plugin_dir(),
+                    \ tscompletejob#utils#join_path("test", "sample1.ts"))
+  let errors_ts = tscompletejob#utils#join_path(
+                    \ tscompletejob#get_plugin_dir(),
+                    \ tscompletejob#utils#join_path("test", "errors.ts"))
+  let rename_ts = tscompletejob#utils#join_path(
+                    \ tscompletejob#get_plugin_dir(),
+                    \ tscompletejob#utils#join_path("test", "rename.ts"))
+  let format_ts = tscompletejob#utils#join_path(
+                    \ tscompletejob#get_plugin_dir(),
+                    \ tscompletejob#utils#join_path("test", "format.ts"))
+
+After:
+  exec "buffer " . current_buf
+
+Execute (tss_command returns default):
+  let cmds = tscompletejob#tss_command()
+  AssertEqual 2, len(cmds)
+  AssertEqual "node", cmds[0]
+  Assert stridx(cmds[1], "tsswrapper.js") != -1
+
+Execute (tss_command customizable with node_cmd):
+  let g:tscompletejob_node_cmd = "custom_node"
+  let cmds = tscompletejob#tss_command()
+  AssertEqual 2, len(cmds)
+  AssertEqual "custom_node", cmds[0]
+
+Execute (tss_command customizable with custom_tsserverlibrary):
+  let g:tscompletejob_custom_tsserverlibrary = "custom_tssserverlib.js"
+  let cmds = tscompletejob#tss_command()
+  AssertEqual 3, len(cmds)
+  AssertEqual "custom_tssserverlib.js", cmds[2]
+
+Execute (status returns 'run' after send command):
+  AssertEqual "not started", tscompletejob#status()
+  call tscompletejob#complete(0, "")
+  AssertEqual "run", tscompletejob#status()
+
+Execute (can restart client after run):
+  AssertEqual "not started", tscompletejob#status()
+  call tscompletejob#complete(0, "")
+  call tscompletejob#restart()
+  AssertEqual "not started", tscompletejob#status()
+
+Execute (complete findstart returns correct values):
+  exec "edit " . sample1
+  call cursor(27,3)
+  normal a
+  let pos = tscompletejob#complete(1,"")
+  AssertEqual 2, pos
+  let completions = tscompletejob#complete(0, "m")
+  AssertEqual type([]), type(completions)
+  AssertEqual 3, len(completions)
+
+Execute (goto difinition can move to correct pos):
+  exec "edit " . sample1
+  call cursor(24,13)
+  call tscompletejob#goto_definition()
+  let line = line(".")
+  let col = col(".")
+  AssertEqual 6, line
+  AssertEqual 1, col
+
+Execute (quickinfo can returns correct infomation):
+  exec "edit " . sample1
+  call cursor(27, 1)
+  let info = tscompletejob#get_quickinfo()
+  AssertEqual "let d: D", info
+
+Execute (signature_help can returns correct signatures):
+  exec "edit " . sample1
+  call cursor(29, 11)
+  let sigs = tscompletejob#get_signature_help()
+  AssertEqual 2, len(sigs)
+
+Execute (qfixlist can returns corrent errors):
+  exec "edit " . errors_ts
+  let qflist = tscompletejob#get_qfixlist()
+  AssertEqual 3, len(qflist)
+
+Execute (rename can edit correctly):
+  exec "edit " . rename_ts
+  call cursor(1, 5)
+  call tscompletejob#rename(1,1,"c")
+  AssertEqual "let c: number = 1;", getline(1)
+  AssertEqual "let b = c.toExponential();", getline(3)
+  normal u
+
+Execute (format can edit correctly):
+  exec "edit " . format_ts
+  %call tscompletejob#format()
+  AssertEqual "let a: number = 1",               getline(1)
+
+  AssertEqual "let obj = {",                     getline(3)
+  AssertEqual "    a: 1, b: 2, c: 4,",           getline(4)
+  AssertEqual "};",                              getline(5)
+
+  AssertEqual "let v = null;",                   getline(6)
+  AssertEqual "function a(x: number) {",         getline(8)
+  AssertEqual "    console.log(x + 1 + 2 + 3);", getline(9)
+  AssertEqual "}",                               getline(10)
+  normal u
+
+Execute (reference can returns correct list):
+  exec "edit " . sample1
+  call cursor(6,7)
+  let refs = tscompletejob#get_references()
+  AssertEqual 3, len(refs)
+

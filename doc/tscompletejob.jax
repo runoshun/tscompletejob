@@ -1,0 +1,183 @@
+*tscompletejob.jax* typescript補完用Vimプラグイン.
+
+============================================================================
+Author:  runoshun<runoshun@gmail.com>                  *tscompletejob-author*
+License: MIT (see |tscompletejob-license|)
+============================================================================
+
+CONTENTS                                              *tscompletejob-contents*
+
+|tscompletejob-introduction|....................................概要
+|tscompletejob-commands|........................................コマンド
+|tscompletejob-settings|........................................設定
+|tscompletejob-mappings|........................................キーマップ
+
+{Incompatible with Vi}
+
+============================================================================
+
+INTRODUCTION                                      *tscompletejob*
+                                                  *tscompletejob-introduction*
+
+tscompletejob-vimはtsserverのvim用ラッパーを使ったtypescript補完用Vimプラグ
+インです。高速に動作することを目標に作成されています。コード補完以外に
+tsserverを利用した定義へのジャンプ、変数情報表示、シグネチャ情報表示、コン
+パイルエラー表示、リネーム、コードフォーマット、参照一覧表示に対応しています。
+
+============================================================================
+
+COMMANDS                                              *tscompletejob-commands*
+
+                                                        *TsCompleteJobRestart*
+:TsCompleteJobRestart
+            tsserverラッパーを実行しているjobを再起動させます。jobがすでに
+            実行中であれば停止してから起動します。
+
+                                                         *TsCompleteJobStatus*
+:TsCompleteJobStatus
+            tsserverラッパーを実行しているjobのステータスを表示します。jobが
+            起動済みであれば、|job_status()|の値が表示され、未起動の場合は
+            "not started"が表示されます。
+
+                                                 *TsCompleteJobGotoDefinition*
+:TsCompleteJobGotoDefinition
+            カーソル下のシンボルの定義箇所に移動します。定義が異なるファイル
+            に存在する場合には、該当のファイルを開いた上で移動します。
+
+                                                      *TsCompleteJobQuickInfo*
+:TsCompleteJobQuickInfo
+            カーソル下のシンボルの定義情報をコマンドラインに表示します。
+
+                                                     *TsCompleteJobReferences*
+:TsCompleteJobReferences
+            カーソル下のシンボルを参照している箇所をロケーションリストに表示
+            します。
+
+                                                         *TsCompleteJobRename*
+:TsCompleteJobRename
+            カーソル下のシンボルを参照箇所も含めてリネームします。複数ファイ
+            ルで参照されている場合は、バッファにファイルを開いてリネームが行
+            われます。
+
+                                                         *TsCompleteJobFormat*
+:[range]TsCompleteJobFormat
+            ファイルのフォーマットを行います。範囲指定しない場合はファイル全
+            体が対象となります。
+
+============================================================================
+
+SETTINGS                                              *tscompletejob-settings*
+
+設定値の説明は下記のフォーマットで記載されています。
+<var_name> = <default_value>
+
+                                                    *g:tscompletejob_node_cmd*
+g:tscompletejob_node_cmd = "node"
+            tsserverラッパーを実行する際に利用するnodejsコマンド
+
+                                      *g:tscompletejob_custom_tsserverlibrary*
+g:tscompletejob_custom_tsserverlibrary = (undefined)
+            カスタムtsserverlibrary.jsのパス。プラグイン同梱とは異なるバージ
+            ョンのtypescriptを利用する場合に指定します。tsserverlibrary.jsは
+            typescript2.0以上に同梱されており、"<typescirpt_install_dir>
+            /lib/tsserverlibrary.js"に格納されています。
+
+                                          *g:tscompletejob_autoload_filetypes*
+g:tscompletejob_autoload_filetypes = ["ts", "tsx"]
+            tscompletejobで管理するバッファの拡張子を指定します。含まれていな
+            いファイルをtypescriptソースとして利用する場合、リネーム、参照一
+            覧表示などが正しく動かない可能性があります。
+
+                                    *g:tscompletejob_mappings_disable_default*
+g:tscompletejob_mappings_disable_default = 0
+            非0を設定するとプラグインデフォルトのキーマップが無効になります。
+
+                                            *g:tscompletejob_complete_disable*
+g:tscompletejob_complete_disable = 0
+            非0を設定すると'omnifunc'への自動設定が無効になります。
+
+                                     *g:tscompletejob_complete_disable_detail*
+g:tscompletejob_complete_disable_detail = 0
+            非0を設定すると補完時に詳細情報(ドキュメント、型情報など)の取得
+            を行いません。補完動作が遅い場合は試してみてください。
+
+                                   *g:tscompletejob_complete_max_detail_count*
+g:tscompletejob_complete_max_detail_count = 50
+            補完時に詳細情報を表示する最大候補数。これを超える候補が存在する
+            場合、すべての候補について詳細情報は表示されません。
+
+                                      *g:tscompletejob_signature_help_disable*
+g:tscompletejob_signature_help_disable = 0
+            非0を設定すると'CursorHoldI'イベントでのシグネチャ情報表示が無効
+            になります。
+
+                                 *g:tscompletejob_signature_help_disable_docs*
+g:tscompletejob_signature_help_disable_docs = 0
+            非0を設定するとシグネチャ情報表示時にドキュメントを取得しません。
+            シグネチャ情報表示動作が遅い場合に試してみてください。
+
+                                              *g:tscompletejob_format_options*
+g:tscompletejob_format_options = { ... }
+            デフォルト値は *autoload/tscompletejob.vim* を参照してください。
+            各オプションの詳しい説明は下記を参照してください。
+            https://github.com/Microsoft/TypeScript/blob/master/src/server/protocol.d.ts
+
+==============================================================================
+
+MAPPINGS                                              *tscompletejob-mappings*
+
+各モードでバッファローカルに下記のキーマップが設定されています。動作は
+|tscompletejob-commands|を参照してください。
+
+Normal mode
+        <Plug>(TsCompleteJobGotoDefinition)  :TsCompleteJobGotoDefinition<CR>
+        <Plug>(TsCompleteJobQuickInfo)       :TsCompleteJobQuickInfo<CR>
+        <Plug>(TsCompleteJobReferences)      :TsCompleteJobReferences<CR>
+        <Plug>(TsCompleteJobRename)          :TsCompleteJobRename<CR>
+        <Plug>(TsCompleteJobFormat)          :TsCompleteJobFormat<CR>
+
+Visual mode
+        <Plug>(TsCompleteJobFormat)          :TsCompleteJobFormat<CR>
+
+
+                                              *tscompletejob-default-mappings*
+|g:tscompletejob_mappings_disable_default|が非0に設定されていなければ下記の
+キーマップが設定されます。
+
+Normal mode
+        <C-]>                   <Plug>(TsCompleteJobGotoDefinition)
+        <LocalLeader>i          <Plug>(TsCompleteJobQuickInfo)
+        <LocalLeader>u          <Plug>(TsCompleteJobReferences)
+        <LocalLeader>r          <Plug>(TsCompleteJobRename)
+        <LocalLeader>f          <Plug>(TsCompleteJobFormat)
+
+Visual mode
+        <LocalLeader>f          <Plug>(TsCompleteJobFormat)
+
+============================================================================
+
+LICENSE                                                *tscompletejob-license*
+
+The MIT License (MIT)
+
+Copyright (c) 2016 <runoshun@gmail.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+vim:tw=78:ts=8:ft=help:norl:

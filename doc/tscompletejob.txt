@@ -1,0 +1,181 @@
+*tscompletejob.txt* Typescript code complete plugin for Vim
+
+============================================================================
+Author:  runoshun<runoshun@gmail.com>                  *tscompletejob-author*
+License: MIT (see |tscompletejob-license|)
+============================================================================
+
+CONTENTS                                              *tscompletejob-contents*
+
+|tscompletejob-introduction|....................................Intro
+|tscompletejob-commands|........................................Commands
+|tscompletejob-settings|........................................Settings
+|tscompletejob-mappings|........................................Mappings
+
+{Incompatible with Vi}
+
+============================================================================
+
+INTRODUCTION                                      *tscompletejob*
+                                                  *tscompletejob-introduction*
+
+'tscompletejob' is make for the purpose of complete/behavior quickly by using
+tsserver for Vim. Supported features are Code completion, Go to Definition,
+Quick Info, Signature Help, Show Compile Errors, Symbol Rename and Show
+References.
+
+============================================================================
+
+COMMANDS                                              *tscompletejob-commands*
+
+                                                        *TsCompleteJobRestart*
+:TsCompleteJobRestart
+            Start a job executing tsserver wrapper. If job is already started,
+            it stop job and start new process.
+
+                                                         *TsCompleteJobStatus*
+:TsCompleteJobStatus
+            Show a job status. If job is already started, this command show
+            value of |job_status()|. Otherwise it show "not started".
+
+                                                 *TsCompleteJobGotoDefinition*
+:TsCompleteJobGotoDefinition
+            Move the cursor to definition of symbol under the cursor. If
+            the definition exists in another file, it open that file and
+            move the cursor to the position.
+
+                                                      *TsCompleteJobQuickInfo*
+:TsCompleteJobQuickInfo
+            Show quick infomation of symbol under the cursor to command line. 
+
+                                                     *TsCompleteJobReferences*
+:TsCompleteJobReferences
+            Show references of symbol under the cursor in |location-list|.
+
+                                                         *TsCompleteJobRename*
+:TsCompleteJobRename
+            Rename symbols include other references.
+
+                                                         *TsCompleteJobFormat*
+:[range]TsCompleteJobFormat
+            Format source codes. If no range passed, it format whole file.
+
+============================================================================
+
+SETTINGS                                              *tscompletejob-settings*
+
+Descriptions of variables are writen in following format.
+<var_name> = <default_value>
+
+                                                    *g:tscompletejob_node_cmd*
+g:tscompletejob_node_cmd = "node"
+            The node command when used launch job.
+
+                                      *g:tscompletejob_custom_tsserverlibrary*
+g:tscompletejob_custom_tsserverlibrary = (undefined)
+            The path of tsserverlibrary.js. If you need to use different
+            version of typescript shipped with this plugin, please set
+            this variable. tsserverlibrary.js is included in typescript 2.0
+            or higher, and it placed at 
+            "<typescirpt_install_dir>/lib/tsserverlibrary.js".
+
+                                          *g:tscompletejob_autoload_filetypes*
+g:tscompletejob_autoload_filetypes = ["ts", "tsx"]
+            Extentions of to manage in tscompletejob. If a extention of file
+            is not exists in this list, tscompletejob may not work correctly.
+
+                                    *g:tscompletejob_mappings_disable_default*
+g:tscompletejob_mappings_disable_default = 0
+            If it set to non 0, default key mappings are disabled.
+
+                                            *g:tscompletejob_complete_disable*
+g:tscompletejob_complete_disable = 0
+            If it is set to non 0, 'omnifunc' is not set by default.
+
+                                     *g:tscompletejob_complete_disable_detail*
+g:tscompletejob_complete_disable_detail = 0
+            If it is set to non 0, detail informations(documentation, type
+            etc.) are ommited. Please try it, if the behavior of completion
+            is slow.
+
+                                   *g:tscompletejob_complete_max_detail_count*
+g:tscompletejob_complete_max_detail_count = 50
+            Max number of candidates to show detail infomation. If candidates
+            exceeds this value, all detail information are ommited.
+
+                                      *g:tscompletejob_signature_help_disable*
+g:tscompletejob_signature_help_disable = 0
+            If it is set to non 0, call signature help on 'CursorHoldI' event
+            is disabled.
+
+                                 *g:tscompletejob_signature_help_disable_docs*
+g:tscompletejob_signature_help_disable_docs = 0
+            If it is set to non 0, documentations are ommited when signature
+            help is shown. Please try it, if signature help is slow.
+
+                                              *g:tscompletejob_format_options*
+g:tscompletejob_format_options = { ... }
+            Please see *autoload/tscompletejob.vim* about default values.
+            Please refer following source about the description of each options.
+            https://github.com/Microsoft/TypeScript/blob/master/src/server/protocol.d.ts
+
+==============================================================================
+
+MAPPINGS                                              *tscompletejob-mappings*
+
+Following mappings are defined as buffer local mapping. Please see
+|tscompletejob-commands| about behavior of thease mappings.
+
+Normal mode
+        <Plug>(TsCompleteJobGotoDefinition)  :TsCompleteJobGotoDefinition<CR>
+        <Plug>(TsCompleteJobQuickInfo)       :TsCompleteJobQuickInfo<CR>
+        <Plug>(TsCompleteJobReferences)      :TsCompleteJobReferences<CR>
+        <Plug>(TsCompleteJobRename)          :TsCompleteJobRename<CR>
+        <Plug>(TsCompleteJobFormat)          :TsCompleteJobFormat<CR>
+
+Visual mode
+        <Plug>(TsCompleteJobFormat)          :TsCompleteJobFormat<CR>
+
+
+                                              *tscompletejob-default-mappings*
+
+If |g:tscompletejob_mappings_disable_default| is not set to non 0, following
+key mappings are defined as buffer local mapping.
+
+Normal mode
+        <C-]>                   <Plug>(TsCompleteJobGotoDefinition)
+        <LocalLeader>i          <Plug>(TsCompleteJobQuickInfo)
+        <LocalLeader>u          <Plug>(TsCompleteJobReferences)
+        <LocalLeader>r          <Plug>(TsCompleteJobRename)
+        <LocalLeader>f          <Plug>(TsCompleteJobFormat)
+
+Visual mode
+        <LocalLeader>f          <Plug>(TsCompleteJobFormat)
+
+============================================================================
+
+LICENSE                                                *tscompletejob-license*
+
+The MIT License (MIT)
+
+Copyright (c) 2016 <runoshun@gmail.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+vim:tw=78:ts=8:ft=help:norl:
