@@ -13,7 +13,7 @@ func! tscompletejob#tsclient#create(command)
                 \ "onOut": function("s:onOut"),
                 \ "waitResponse": function("s:waitResponse"),
                 \ "getRequest": function("s:getRequest"),
-                \ "destotyRequest": function("s:destoryRequest"),
+                \ "destroyRequest": function("s:destroyRequest"),
                 \ }
     return obj
 endfunc
@@ -95,14 +95,14 @@ func! s:waitResponse(req_id, ...) dict
     while !request.received
         sleep 50m
         if complete_check() && do_complete_check
-            self.destotyRequest(a:req_id)
+            self.destroyRequest(a:req_id)
             throw "cancel:"
         endif
     endwhile
     if !request.success
         throw  "error: " . request.response
     endif
-    call self.destotyRequest(a:req_id)
+    call self.destroyRequest(a:req_id)
     return request.response
 endfunc
 
@@ -110,7 +110,7 @@ func! s:getRequest(req_id) dict
     return self.requests[string(a:req_id)]
 endfunc
 
-func! s:destoryRequest(req_id) dict
+func! s:destroyRequest(req_id) dict
     unlet self.requests[string(a:req_id)]
 endfunc
 
