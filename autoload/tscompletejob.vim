@@ -1,6 +1,16 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
+" {{{ script local utils : debug
+let s:debug_enabled = 0
+
+func! s:log(msg) abort
+    if (s:debug_enabled)
+        echom "[tsj]: " . a:msg
+    endif
+endfunc
+" }}}
+
 " {{{ script local utils : reload
 let s:script_dir = expand("<sfile>:p:h")
 
@@ -39,7 +49,9 @@ func! s:sendFileLocationCommand(command, useResponse, ...) abort
 
     let base.file = expand("%:p")
     let base.line = line('.')
-    let base.offset = col('.') + 1
+    let base.offset = col('.')
+
+    call s:log("send : command = " . a:command . ", args = " . string(base) . ", useResponse = " . a:useResponse)
 
     call s:ensureReload(base.file)
     let id = s:tsclient.sendCommand(a:command, a:useResponse, base)
@@ -223,28 +235,41 @@ endfunc
 " }}}
 
 " {{{ signature_help
-let s:signature_help_cache = [0, "x", []]
+let s:signature_help_cache = [0, "x", "x", []]
 func! tscompletejob#get_signature_help()
     let prevLnum = s:signature_help_cache[0]
     let curLnum = line(".")
 
+    "call s:log("signature_help: cache = " . string(s:signature_help_cache) . ", curLnum = " . curLnum)
     if (curLnum == prevLnum)
         let curLine = getline(".")
-        let cp = substitute(curLine, "[^,()]", "", "g")
-        if (cp == s:signature_help_cache[1] && cp != "")
-            return s:signature_help_cache[2]
+        let curCol = col(".")
+        let headCp = substitute(curLine[:(curCol - 2)], "[^,()]", "", "g")
+        let tailCp = substitute(curLine[(curCol - 2):], "[^,()]", "", "g")
+
+        call s:log("signature_help: headCp = " . headCp . ", tailCp = " . tailCp)
+
+        if headCp == s:signature_help_cache[1] && headCp != ""
+        \  && tailCp == s:signature_help_cache[2] && tailCp != ""
+            call s:log("signature_help using cache")
+            return s:signature_help_cache[3]
         else
-            let s:signature_help_cache[1] = cp
+            let s:signature_help_cache[1] = headCp
+            let s:signature_help_cache[2] = tailCp
         endif
     endif
+
+    let headCp = exists("headCp") ? headCp : "x"
+    let tailCp = exists("tailCp") ? tailCp : "x"
 
     try
         let id = s:sendFileLocationCommand("signatureHelpForVim", 1, {
                     \ "disableDocumentation" : g:tscompletejob_signature_help_disable_docs ? v:true : v:false })
         let res = s:tsclient.waitResponse(id)
-        let s:signature_help_cache = [curLnum, "x", res]
+        let s:signature_help_cache = [curLnum, headCp, tailCp, res]
         return res
     catch
+        echom v:exception
         " no warning because signature help will called
         " out of function calls.
     endtry
