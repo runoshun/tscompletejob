@@ -113,3 +113,29 @@ Execute (reference can returns correct list):
   let refs = tscompletejob#get_references()
   AssertEqual 3, len(refs)
 
+Execute (complete with async callback works correctly):
+   exec "edit " . sample1
+   call cursor(27,3)
+   normal a
+
+   function! Assert()
+     let response = []
+     let success = 0
+     let done = 0
+     function! TestCallback(success, response) closure
+       let success = a:success
+       let response = a:response
+       let done = 1
+     endfunction
+     call tscompletejob#complete_with_handler(0, "m", funcref('TestCallback'))
+
+     while !done
+       sleep 50m
+     endwhile
+
+     AssertEqual 1, success
+     AssertEqual type([]), type(response)
+     AssertEqual 3, len(response)
+   endfunction
+   call Assert()
+

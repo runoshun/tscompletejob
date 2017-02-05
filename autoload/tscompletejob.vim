@@ -40,7 +40,7 @@ endfunc
 " }}}
 
 " {{{ script local utils : sendCommand
-func! s:sendFileLocationCommand(command, useResponse, ...) abort
+func! s:sendFileLocationCommand(command, handler, ...) abort
     if (a:0 == 0)
         let base = { }
     else
@@ -51,10 +51,10 @@ func! s:sendFileLocationCommand(command, useResponse, ...) abort
     let base.line = line('.')
     let base.offset = col('.')
 
-    call s:log("send : command = " . a:command . ", args = " . string(base) . ", useResponse = " . a:useResponse)
+    call s:log("send : command = " . a:command . ", args = " . string(base) . ", handler = " . a:handler)
 
     call s:ensureReload(base.file)
-    let id = s:tsclient.sendCommand(a:command, a:useResponse, base)
+    let id = s:tsclient.sendCommand(a:command, a:handler, base)
     return id
 endfunc
 " }}}
@@ -157,7 +157,17 @@ func! tscompletejob#restart() abort
     call s:init_client()
 endfunc
 
-func! tscompletejob#get_client() abort
+func! tscompletejob#send_command(command, handler, arguments) abort
+    return s:tsclient.sendCommand(a:command, a:handler, a:arguments)
+endfunc
+
+func! tscompletejob#wait_response(id, ...) abort
+    if a:0 == 0
+        let do_complete_check = 0
+    else
+        let do_complete_check = a:1
+    endif
+    return s:tsclient.waitResponse(a:id, do_complete_check)
 endfunc
 
 func! tscompletejob#add_buffer(bufname)
@@ -168,6 +178,10 @@ endfunc
 
 " {{{ complete
 func! tscompletejob#complete(findstart, base) abort
+    return tscompletejob#complete_with_handler(a:findstart, a:base, 1) " response handled by waitResponse()
+endfunc
+
+func! tscompletejob#complete_with_handler(findstart, base, handler) abort
     let l:line_str = getline('.')
     let l:line = line('.')
     let l:offset = col('.')
@@ -182,19 +196,25 @@ func! tscompletejob#complete(findstart, base) abort
         let l:file = expand("%:p")
         call s:ensureReload(l:file)
 
-        let completions_id = s:tsclient.sendCommand("completionsForVim", 1, {
+        let completions_id = s:tsclient.sendCommand("completionsForVim", a:handler, {
                     \ "enableDetail" : !g:tscompletejob_complete_disable_detail,
                     \ "maxDetailCount": g:tscompletejob_complete_max_detail_count,
                     \ "file" : l:file,
                     \ "prefix": a:base,
                     \ "line": l:line,
                     \ "offset": l:offset })
-        try
-            let completions = s:tsclient.waitResponse(completions_id, 1)
-            return completions
-        catch
+
+        if !s:tsclient.requestHasCallback(completions_id)
+            try
+                let completions = s:tsclient.waitResponse(completions_id, 1)
+                return completions
+            catch
+                return []
+            endtry
+        else
             return []
-        endtry
+        endif
+
     endif
 endfunc
 " }}}
