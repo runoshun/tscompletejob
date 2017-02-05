@@ -87,7 +87,7 @@ func! s:applyEditBatches(batches) abort
                 call add(lineParts, lineStr[offset:edit.start-2])
             endif
 
-            if edit.replace =~# ""
+            if edit.replace =~# "" || edit.replace =~# nr2char(10)
                 call add(lines[line], join(lineParts, ""))
                 let lineParts = []
             else
