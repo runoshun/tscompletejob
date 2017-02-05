@@ -65,7 +65,7 @@ Execute (goto difinition can move to correct pos):
   let line = line(".")
   let col = col(".")
   AssertEqual 6, line
-  AssertEqual 1, col
+  AssertEqual 7, col
 
 Execute (quickinfo can returns correct infomation):
   exec "edit " . sample1

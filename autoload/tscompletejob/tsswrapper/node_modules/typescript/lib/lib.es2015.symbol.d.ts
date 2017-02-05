@@ -13,13 +13,17 @@ See the Apache Version 2.0 License for specific language governing permissions
 and limitations under the License.
 ***************************************************************************** */
 
+
+
 /// <reference no-default-lib="true"/>
+
+
 interface Symbol {
     /** Returns a string representation of an object. */
     toString(): string;
 
     /** Returns the primitive value of the specified object. */
-    valueOf(): Object;
+    valueOf(): symbol;
 }
 
 interface SymbolConstructor {

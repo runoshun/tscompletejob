@@ -13,7 +13,11 @@ See the Apache Version 2.0 License for specific language governing permissions
 and limitations under the License.
 ***************************************************************************** */
 
+
+
 /// <reference no-default-lib="true"/>
+
+
 /// <reference path="lib.es2015.symbol.d.ts" />
 
 interface SymbolConstructor {
@@ -126,7 +130,7 @@ interface Map<K, V> {
     readonly [Symbol.toStringTag]: "Map";
 }
 
-interface WeakMap<K, V>{
+interface WeakMap<K extends object, V>{
     readonly [Symbol.toStringTag]: "WeakMap";
 }
 

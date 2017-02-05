@@ -209,6 +209,7 @@ func! tscompletejob#complete_with_handler(findstart, base, handler) abort
                 let completions = s:tsclient.waitResponse(completions_id, 1)
                 return completions
             catch
+                call s:log("complete error: " . v:exception)
                 return []
             endtry
         else
