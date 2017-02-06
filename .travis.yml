@@ -12,10 +12,11 @@ install: |
   mkdir ~/bin
   ./configure --with-features=huge --enable-fail-if-missing --prefix=$HOME/bin/vim${version}
   make && make install
-  export THEMIS_VIM=$HOME/bin/vim${version}/bin/vim
+  export MY_VIM=$HOME/bin/vim${version}/bin/vim
+  cd ${HOME}
 
 script: |
-  vim -Nu <(cat <<VIMRC
+  ${MY_VIM} -Nu <(cat <<VIMRC
   filetype off
   set rtp+=vader.vim
   set rtp+=.
