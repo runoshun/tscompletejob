@@ -133,7 +133,7 @@ Execute (complete with async callback works correctly):
        sleep 50m
      endwhile
 
-     AssertEqual 1, success
+     AssertEqual v:true, success
      AssertEqual type([]), type(response)
      AssertEqual 3, len(response)
    endfunction
