@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/runoshun/tscompletejob.svg?branch=master)](https://travis-ci.org/runoshun/tscompletejob)
+
 tscompletejob-vim
 ============================
 Typescript code complete plugin for Vim : [demo](#demo)
@@ -18,8 +20,7 @@ Limitations
 
 Requirements
 -----------------------------------------------------------------------
-- +job/+channel Vim
-- jobcontrol Neovim
+- +job/+channel Vim or jobcontrol Neovim
 - nodejs (4.x, 6.x)
 
 Install
@@ -86,12 +87,15 @@ See [help](doc/tscompletejob.txt).
 Demo
 -----------------------------------------------------------------------
 - Code complete
+
 ![complete demo](https://github.com/runoshun/readme-images/blob/master/tscompletejob/complete.gif?raw=true)
 
 - Goto Definition
+
 ![goto_definition demo](https://github.com/runoshun/readme-images/blob/master/tscompletejob/goto_definition.gif?raw=true)
 
 - Call signature help
+
 ![signature_help demo](https://github.com/runoshun/readme-images/blob/master/tscompletejob/signature_help.gif?raw=true)
 
 Running tests

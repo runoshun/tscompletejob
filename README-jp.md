@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/runoshun/tscompletejob.svg?branch=master)](https://travis-ci.org/runoshun/tscompletejob)
+
 tscompletejob-vim
 ============================
 typescript補完 Vimプラグイン : [デモ](#demo)
@@ -15,7 +17,7 @@ typescript補完 Vimプラグイン : [デモ](#demo)
 
 必要なもの
 -----------------------------------------------------------------------
-- +job/+channel付きのVim
+- +job/+channel付きのVim or jobcontrol NeoVim
 - nodejs(4.x, 6.x)
 
 インストール
@@ -83,13 +85,16 @@ let g:tscompletejob_custom_tsserverlibrary = "/path/to/tsserverlibrary.js"
 
 Demo
 -----------------------------------------------------------------------
-- 補完  
+- 補完
+
 ![complete demo](https://github.com/runoshun/readme-images/blob/master/tscompletejob/complete.gif?raw=true)
 
-- 定義へのジャンプ  
+- 定義へのジャンプ
+
 ![goto_definition demo](https://github.com/runoshun/readme-images/blob/master/tscompletejob/goto_definition.gif?raw=true)
 
-- 関数シグネチャ表示  
+- 関数シグネチャ表示
+
 ![signature_help demo](https://github.com/runoshun/readme-images/blob/master/tscompletejob/signature_help.gif?raw=true)
 
 テストの実行
