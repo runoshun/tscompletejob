@@ -10,39 +10,57 @@ func! tscompletejob#tsclient#create(command)
                 \ "ensureStart": function("s:ensureStart"),
                 \ "ensureStop": function("s:ensureStop"),
                 \ "sendCommand": function("s:sendCommand"),
-                \ "onOut": function("s:onOut"),
                 \ "waitResponse": function("s:waitResponse"),
                 \ "getRequest": function("s:getRequest"),
                 \ "requestHasCallback": function("s:requestHasCallback"),
                 \ "destroyRequest": function("s:destroyRequest"),
                 \ }
+    if has('nvim')
+        let obj['onOut'] = function('s:onNVimOut')
+        let obj['onVimOut'] = function('s:onVimOut')
+    else
+        let obj['onOut'] = function('s:onVimOut')
+    endif
     return obj
 endfunc
 
 func! s:status() dict
     if (has_key(self, "job"))
-        return job_status(self.job)
-    else
-        return "not started"
+        if has("nvim")
+            return "run"
+        else
+            return job_status(self.job)
+        endif
     endif
+    return "not started"
 endfunc
 
 func! s:ensureStart() dict
-    if (has_key(self, "job"))
-        if (job_status(self.job) == "run")
-            return
-        endif
+    if (self.status() == "run")
+        return
     endif
 
-    let self.job = job_start(self.tssCommand, { "callback": self.onOut })
-    let self.ch  = job_getchannel(self.job)
+    if has('nvim')
+        let self.job = jobstart(self.tssCommand, { 'obj': self, "on_stdout": self.onOut, "on_exit": self.onOut })
+        if self.job <= 0
+            unlet let self.job
+        endif
+    else
+        let self.job = job_start(self.tssCommand, { "callback": self.onOut })
+        let self.ch  = job_getchannel(self.job)
+    endif
 endfunc
 
 func! s:ensureStop() dict
     if (has_key(self, "job"))
-        call job_stop(self.job)
-        unlet self.job
-        unlet self.ch
+        if has('nvim')
+            call jobstop(self.job)
+            unlet self.job
+        else
+            call job_stop(self.job)
+            unlet self.job
+            unlet self.ch
+        endif
     endif
 endfunc
 
@@ -62,12 +80,17 @@ func! s:sendCommand(command, responseHandler, arguments) dict
         let self.requests[string(id)] = { "received" : 0 }
     endif
 
-    call ch_sendraw(self.ch, json_encode(com))
-    call ch_sendraw(self.ch, "\r\n")
+    if has('nvim')
+        call jobsend(self.job, json_encode(com))
+        call jobsend(self.job, "\r\n")
+    else
+        call ch_sendraw(self.ch, json_encode(com))
+        call ch_sendraw(self.ch, "\r\n")
+    endif
     return id
 endfunc
 
-func! s:onOut(job, msg) dict
+func! s:onVimOut(job, msg) dict
     if a:msg =~ "^Content-Length:" || a:msg =~ "^No content"
         return
     endif
@@ -99,7 +122,20 @@ func! s:onOut(job, msg) dict
     catch
         echoerr v:exception
     endtry
+endfunc
 
+func! s:onNVimOut(id, data, event) dict
+    if a:event == 'stdout'
+        for a:line in a:data
+            if !empty(a:line) && a:line != "\r"
+                call self.obj.onVimOut(a:id, a:line)
+            endif
+        endfor
+    elseif a:event == 'exit'
+        if has_key(self, 'job')
+            unlet self.job
+        endif
+    endif
 endfunc
 
 func! s:waitResponse(req_id, ...) dict
