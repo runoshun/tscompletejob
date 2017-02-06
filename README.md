@@ -10,6 +10,7 @@ Features
 - Supported features are Go to Definition, Quick Info, Signature Help,
   Show Compile Errors, Symbol Rename and Show References.
 - Using job, channel features of vim
+- Use jobcontrol features of Neovim
 
 Limitations
 -----------------------------------------------------------------------
@@ -18,6 +19,7 @@ Limitations
 Requirements
 -----------------------------------------------------------------------
 - +job/+channel Vim
+- jobcontrol Neovim
 - nodejs (4.x, 6.x)
 
 Install
@@ -37,7 +39,7 @@ Basic Functions and Usage
 ### Code Complete
 `omnifunc=tscompletejob#complete` is set by default in filetype:`typescript`.
 tscompletejob has no ftdetect, please use [typescript-vim](https://github.com/leafgarland/typescript-vim)
-etc. or define ftdetect by yourself. 
+etc. or define ftdetect by yourself.
 
 
 ### Goto Definition
@@ -83,13 +85,13 @@ See [help](doc/tscompletejob.txt).
 
 Demo
 -----------------------------------------------------------------------
-- Code complete  
+- Code complete
 ![complete demo](https://github.com/runoshun/readme-images/blob/master/tscompletejob/complete.gif?raw=true)
 
-- Goto Definition  
+- Goto Definition
 ![goto_definition demo](https://github.com/runoshun/readme-images/blob/master/tscompletejob/goto_definition.gif?raw=true)
 
-- Call signature help  
+- Call signature help
 ![signature_help demo](https://github.com/runoshun/readme-images/blob/master/tscompletejob/signature_help.gif?raw=true)
 
 Running tests
