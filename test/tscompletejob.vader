@@ -119,20 +119,23 @@ Execute (complete with async callback works correctly):
    normal a
 
    function! Assert()
-     let response = []
-     let success = 0
-     let done = 0
-     function! TestCallback(success, response) closure
-       let success = a:success
-       let response = a:response
-       let done = 1
+     let s:response = []
+     let s:success = 0
+     let s:done = 0
+     function! TestCallback(success, response)
+       let s:success = a:success
+       let s:response = a:response
+       let s:done = 1
      endfunction
-     call tscompletejob#complete_with_handler(0, "m", funcref('TestCallback'))
+     call tscompletejob#complete_with_handler(0, "m", function('TestCallback'))
 
-     while !done
+     while !s:done
        sleep 50m
      endwhile
 
+     " vars like 's:*' can't access in AssertEqual ??
+     let success = s:success
+     let response = s:response
      AssertEqual v:true, success
      AssertEqual type([]), type(response)
      AssertEqual 3, len(response)

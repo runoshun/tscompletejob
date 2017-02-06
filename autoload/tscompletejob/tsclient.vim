@@ -74,7 +74,7 @@ func! s:sendCommand(command, responseHandler, arguments) dict
               \ "arguments": a:arguments,
               \ }
 
-    if type(a:responseHandler) == v:t_func " handled by user callback
+    if type(a:responseHandler) == type(function("tr")) " handled by user callback
         let self.requests[string(id)] = { "callback" : a:responseHandler }
     elseif a:responseHandler " handled by waitResponse()
         let self.requests[string(id)] = { "received" : 0 }
@@ -156,7 +156,7 @@ func! s:waitResponse(req_id, ...) dict
 endfunc
 
 func! s:getRequest(req_id) dict
-    if type(a:req_id) == v:t_number
+    if type(a:req_id) == type(1)
         return self.requests[string(a:req_id)]
     else
         return self.requests[a:req_id]
@@ -168,7 +168,7 @@ func! s:requestHasCallback(req_id) dict
 endfunc
 
 func! s:destroyRequest(req_id) dict
-    if type(a:req_id) == v:t_number
+    if type(a:req_id) == type(1)
         unlet self.requests[string(a:req_id)]
     else
         unlet self.requests[a:req_id]
