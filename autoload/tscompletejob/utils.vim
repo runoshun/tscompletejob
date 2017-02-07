@@ -1,6 +1,13 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
+let s:debug_enabled = 1
+
+func! tscompletejob#utils#log(msg) abort
+    if (s:debug_enabled)
+        echom "[tsj]: " . a:msg
+    endif
+endfunc
 
 func! tscompletejob#utils#is_same_file(f1, f2)
     let f1 = substitute(a:f1, "\\", "/", "g")

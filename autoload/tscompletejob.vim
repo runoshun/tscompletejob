@@ -1,26 +1,16 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-" {{{ script local utils : debug
-let s:debug_enabled = 0
-
-func! s:log(msg) abort
-    if (s:debug_enabled)
-        echom "[tsj]: " . a:msg
-    endif
-endfunc
-" }}}
-
 " {{{ script local utils : reload
 let s:script_dir = expand("<sfile>:p:h")
 
 func! s:ensureReload(file) abort
     if (!s:bufmgr.isOpened(a:file))
-        call s:tsclient.sendCommand("open", 0, { "file": a:file })
+        call tscompletejob#send_command("open", 0, { "file": a:file })
         call s:bufmgr.isOpened(a:file, 1)
     endif
     let l:tmp = s:bufmgr.flushTmpFile(a:file)
-    call s:tsclient.sendCommand("reload", 0, {
+    call tscompletejob#send_command("reload", 0, {
                 \ "file": a:file,
                 \ "tmpfile": l:tmp,
                 \ })
@@ -51,10 +41,8 @@ func! s:sendFileLocationCommand(command, handler, ...) abort
     let base.line = line('.')
     let base.offset = col('.')
 
-    call s:log("send : command = " . a:command . ", args = " . string(base) . ", handler = " . a:handler)
-
     call s:ensureReload(base.file)
-    let id = s:tsclient.sendCommand(a:command, a:handler, base)
+    let id = tscompletejob#send_command(a:command, a:handler, base)
     return id
 endfunc
 " }}}
@@ -158,6 +146,9 @@ func! tscompletejob#restart() abort
 endfunc
 
 func! tscompletejob#send_command(command, handler, arguments) abort
+    call tscompletejob#utils#log("send: command = " . a:command .
+                                    \", handler = " . string(a:handler) .
+                                    \", args =" . string(a:arguments))
     return s:tsclient.sendCommand(a:command, a:handler, a:arguments)
 endfunc
 
@@ -167,7 +158,9 @@ func! tscompletejob#wait_response(id, ...) abort
     else
         let do_complete_check = a:1
     endif
-    return s:tsclient.waitResponse(a:id, do_complete_check)
+    let res = s:tsclient.waitResponse(a:id, do_complete_check)
+    call tscompletejob#utils#log("recv: " . string(res))
+    return res
 endfunc
 
 func! tscompletejob#add_buffer(bufname)
@@ -196,7 +189,7 @@ func! tscompletejob#complete_with_handler(findstart, base, handler) abort
         let l:file = expand("%:p")
         call s:ensureReload(l:file)
 
-        let completions_id = s:tsclient.sendCommand("completionsForVim", a:handler, {
+        let completions_id = tscompletejob#send_command("completionsForVim", a:handler, {
                     \ "enableDetail" : !g:tscompletejob_complete_disable_detail,
                     \ "maxDetailCount": g:tscompletejob_complete_max_detail_count,
                     \ "file" : l:file,
@@ -206,10 +199,10 @@ func! tscompletejob#complete_with_handler(findstart, base, handler) abort
 
         if !s:tsclient.requestHasCallback(completions_id)
             try
-                let completions = s:tsclient.waitResponse(completions_id, 1)
+                let completions = tscompletejob#wait_response(completions_id, 1)
                 return completions
             catch
-                call s:log("complete error: " . v:exception)
+                call tscompletejob#utils#log("complete error: " . v:exception)
                 return []
             endtry
         else
@@ -224,7 +217,7 @@ endfunc
 func! tscompletejob#goto_definition() abort
     let id = s:sendFileLocationCommand("definition", 1)
     try
-        let locales = s:tsclient.waitResponse(id)
+        let locales = tscompletejob#wait_response(id)
         if (len(locales) > 0)
             let locale = locales[0]
             let file = expand("%:p")
@@ -243,7 +236,7 @@ endfunc
 func! tscompletejob#get_quickinfo() abort
     let id = s:sendFileLocationCommand("quickinfo", 1)
     try
-        let info = s:tsclient.waitResponse(id)
+        let info = tscompletejob#wait_response(id)
         return info.displayString
     catch
         echoerr v:exception
@@ -261,18 +254,17 @@ func! tscompletejob#get_signature_help()
     let prevLnum = s:signature_help_cache[0]
     let curLnum = line(".")
 
-    "call s:log("signature_help: cache = " . string(s:signature_help_cache) . ", curLnum = " . curLnum)
     if (curLnum == prevLnum)
         let curLine = getline(".")
         let curCol = col(".")
         let headCp = substitute(curLine[:(curCol - 2)], "[^,()]", "", "g")
         let tailCp = substitute(curLine[(curCol - 2):], "[^,()]", "", "g")
 
-        call s:log("signature_help: headCp = " . headCp . ", tailCp = " . tailCp)
+        call tscompletejob#utils#log("signature_help: headCp = " . headCp . ", tailCp = " . tailCp)
 
         if headCp == s:signature_help_cache[1] && headCp != ""
         \  && tailCp == s:signature_help_cache[2] && tailCp != ""
-            call s:log("signature_help using cache")
+            call tscompletejob#utils#log("signature_help using cache")
             return s:signature_help_cache[3]
         else
             let s:signature_help_cache[1] = headCp
@@ -286,7 +278,7 @@ func! tscompletejob#get_signature_help()
     try
         let id = s:sendFileLocationCommand("signatureHelpForVim", 1, {
                     \ "disableDocumentation" : g:tscompletejob_signature_help_disable_docs ? v:true : v:false })
-        let res = s:tsclient.waitResponse(id)
+        let res = tscompletejob#wait_response(id)
         let s:signature_help_cache = [curLnum, headCp, tailCp, res]
         return res
     catch
@@ -331,9 +323,9 @@ endfunc
 func! tscompletejob#get_qfixlist() abort
     let file = expand("%:p")
     call s:ensureReload(file)
-    let id = s:tsclient.sendCommand("qfixlistForVim", 1, {
+    let id = tscompletejob#send_command("qfixlistForVim", 1, {
                 \ "file": file })
-    let qfixlist = s:tsclient.waitResponse(id)
+    let qfixlist = tscompletejob#wait_response(id)
 
     for item in qfixlist
         let item.filename = file
@@ -355,7 +347,7 @@ func! tscompletejob#rename(findInComment, findInString, ...) abort
     let id = s:sendFileLocationCommand("rename", 1, {
                 \ "findInComment": a:findInComment ? v:true : v:false,
                 \ "findInString": a:findInString ? v:true : v:false })
-    let res = s:tsclient.waitResponse(id)
+    let res = tscompletejob#wait_response(id)
     if res.info.canRename
 
         if (!exists("renamedSymbol"))
@@ -402,14 +394,14 @@ func! tscompletejob#format() range abort
 
     let file = expand("%:p")
     call s:ensureReload(file)
-    let id = s:tsclient.sendCommand("format", 1, {
+    let id = tscompletejob#send_command("format", 1, {
                 \ "file" : file,
                 \ "line" : a:firstline,
                 \ "offset" : 1,
                 \ "endLine" : a:lastline + 1,
                 \ "endOffset" : 1
                 \ })
-    let res = s:tsclient.waitResponse(id)
+    let res = tscompletejob#wait_response(id)
     let batches = {}
     for edit in res
         if (edit.start.line != edit.end.line)
@@ -421,10 +413,10 @@ func! tscompletejob#format() range abort
 endfunc
 
 func! s:configureFormatOptions()
-    let id = s:tsclient.sendCommand("configure", 1, {
+    let id = tscompletejob#send_command("configure", 1, {
                 \ "formatOptions" : g:tscompletejob_format_options
                 \})
-    call s:tsclient.waitResponse(id)
+    call tscompletejob#wait_response(id)
 endfunc
 " }}}
 
@@ -432,7 +424,7 @@ endfunc
 func! tscompletejob#get_references() abort
     call s:reloadAll()
     let id = s:sendFileLocationCommand("referencesForVim", 1)
-    return s:tsclient.waitResponse(id)
+    return tscompletejob#wait_response(id)
 endfunc
 
 func! tscompletejob#references() abort
