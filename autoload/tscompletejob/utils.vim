@@ -1,7 +1,7 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-let s:debug_enabled = 1
+let s:debug_enabled = 0
 
 func! tscompletejob#utils#log(msg) abort
     if (s:debug_enabled)
