@@ -448,6 +448,9 @@ func! s:defineConfg(force, name, ...)
 endfunc
 
 func! tscompletejob#init_plugin(force)
+    call s:defineConfg(a:force, "g:tscompletejob__debug__", 0)
+    call s:defineConfg(a:force, "g:tscompletejob__preflog__", 0)
+
     call s:defineConfg(a:force, "g:tscompletejob_node_cmd", "node")
     call s:defineConfg(a:force, "g:tscompletejob_custom_tsserverlibrary")
     call s:defineConfg(a:force, "g:tscompletejob_autoload_filetypes", [".ts", ".tsx"])

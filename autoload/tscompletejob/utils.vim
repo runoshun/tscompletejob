@@ -1,11 +1,31 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-let s:debug_enabled = 0
-
 func! tscompletejob#utils#log(msg) abort
-    if (s:debug_enabled)
+    if (g:tscompletejob__debug__)
         echom "[tsj]: " . a:msg
+    endif
+endfunc
+
+let s:rel_tags = { }
+
+func! tscompletejob#utils#perf_start(tag) abort
+    if (g:tscompletejob__preflog__)
+        let s:rel_tags[a:tag] = reltime()
+        echom "[tsj] " . a:tag
+    endif
+endfunc
+
+func! tscompletejob#utils#perf_log(tag, msg) abort
+    if (g:tscompletejob__preflog__ && has_key(s:rel_tags, a:tag))
+        let id = s:rel_tags[a:tag]
+        echom "[tsj] " . reltimestr(reltime(id)) . " " . a:tag . " " . a:msg
+    endif
+endfunc
+
+func! tscompletejob#utils#perf_clear(tag) abort
+    if (g:tscompletejob__preflog__ && has_key(s:rel_tags, a:tag))
+        unlet s:rel_tags[a:tag]
     endif
 endfunc
 
