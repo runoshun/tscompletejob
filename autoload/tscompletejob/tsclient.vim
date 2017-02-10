@@ -59,7 +59,8 @@ func! s:onOut(self, job, msg) dict
 
             if this.requestHasCallback(id)
                 let Callback = req.callback
-                call Callback(success, response)
+                let request_id = req.request_id
+                call Callback(request_id, success, response)
                 call this.destroyRequest(id)
             else
                 let req.received = 1
@@ -94,8 +95,16 @@ func! s:sendCommand(command, responseHandler, arguments) dict
               \ "arguments": a:arguments,
               \ }
 
-    if type(a:responseHandler) == type(function("tr")) " handled by user callback
-        let self.requests[string(id)] = { "callback" : a:responseHandler }
+    if type(a:responseHandler) == type({}) " handled by user defined callback with req id
+        let self.requests[string(id)] = {
+                    \ "callback": a:responseHandler.callback,
+                    \ "request_id": a:responseHandler.request_id
+                    \ }
+    elseif type(a:responseHandler) == type(function("tr")) " handled by user callback
+        let self.requests[string(id)] = {
+                    \ "callback" : a:responseHandler,
+                    \ "request_id" : -1
+                    \ }
     elseif a:responseHandler " handled by waitResponse()
         let self.requests[string(id)] = { "received" : 0 }
     endif

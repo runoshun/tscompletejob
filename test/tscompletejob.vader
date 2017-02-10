@@ -121,13 +121,18 @@ Execute (complete with async callback works correctly):
    function! Assert()
      let s:response = []
      let s:success = 0
+     let s:request_id = 0
      let s:done = 0
-     function! TestCallback(success, response)
+     function! TestCallback(request_id, success, response)
        let s:success = a:success
        let s:response = a:response
+       let s:request_id = a:request_id
        let s:done = 1
      endfunction
-     call tscompletejob#complete_with_handler(0, "m", function('TestCallback'))
+     call tscompletejob#complete_with_handler(0, "m", {
+       \ "callback": function('TestCallback'),
+       \ "request_id" : 100,
+       \})
 
      while !s:done
        sleep 50m
@@ -136,7 +141,9 @@ Execute (complete with async callback works correctly):
      " vars like 's:*' can't access in AssertEqual ??
      let success = s:success
      let response = s:response
+     let request_id = s:request_id
      AssertEqual v:true, success
+     AssertEqual 100, request_id
      AssertEqual type([]), type(response)
      AssertEqual 3, len(response)
    endfunction
