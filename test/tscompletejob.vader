@@ -61,17 +61,14 @@ Execute (complete findstart returns correct values):
 Execute (goto difinition can move to correct pos):
   exec "edit " . sample1
   call cursor(24,13)
-  call tscompletejob#goto_definition()
+  let id = tscompletejob#goto_definition()
+  while !tscompletejob#is_request_done(id)
+    sleep 50m
+  endwhile
   let line = line(".")
   let col = col(".")
   AssertEqual 6, line
   AssertEqual 7, col
-
-Execute (quickinfo can returns correct infomation):
-  exec "edit " . sample1
-  call cursor(27, 1)
-  let info = tscompletejob#get_quickinfo()
-  AssertEqual "let d: D", info
 
 Execute (signature_help can returns correct signatures):
   exec "edit " . sample1
@@ -110,7 +107,11 @@ Execute (format can edit correctly):
 Execute (reference can returns correct list):
   exec "edit " . sample1
   call cursor(6,7)
-  let refs = tscompletejob#get_references()
+  let id = tscompletejob#references()
+  while !tscompletejob#is_request_done(id)
+    sleep 50m
+  endwhile
+  let refs = getloclist(winnr())
   AssertEqual 3, len(refs)
 
 Execute (complete with async callback works correctly):
@@ -149,3 +150,14 @@ Execute (complete with async callback works correctly):
    endfunction
    call Assert()
 
+Execute (quickinfo can returns correct infomation):
+  exec "edit " . sample1
+  call cursor(27, 1)
+  execute "redir => s:messages"
+  let id = tscompletejob#quickinfo()
+  while !tscompletejob#is_request_done(id)
+    sleep 10m
+  endwhile
+  redir END
+  let info = get(split(s:messages,"\n"),-1, "")
+  AssertEqual "let d: D", info

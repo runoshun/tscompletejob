@@ -215,9 +215,18 @@ endfunc
 
 " {{{ goto_difinition
 func! tscompletejob#goto_definition() abort
-    let id = s:sendFileLocationCommand("definition", 1)
+    let id = s:sendFileLocationCommand("definition", function("s:goto_definition_callback"))
+    echo "tscompletejob: locating ..."
+    return id
+endfunc
+
+func! s:goto_definition_callback(request_id, success, response)
+    if !a:success
+        return
+    endif
+
     try
-        let locales = tscompletejob#wait_response(id)
+        let locales = a:response
         if (len(locales) > 0)
             let locale = locales[0]
             let file = expand("%:p")
@@ -233,18 +242,16 @@ endfunc
 " }}}
 
 " {{{ quickinfo
-func! tscompletejob#get_quickinfo() abort
-    let id = s:sendFileLocationCommand("quickinfo", 1)
-    try
-        let info = tscompletejob#wait_response(id)
-        return info.displayString
-    catch
-        echoerr v:exception
-    endtry
+func! tscompletejob#quickinfo() abort
+    return s:sendFileLocationCommand("quickinfo", function("s:quickinfo_callback"))
 endfunc
 
-func! tscompletejob#quickinfo() abort
-    echo tscompletejob#get_quickinfo()
+func! s:quickinfo_callback(request_id, success, response)
+    if !a:success
+        return
+    endif
+    echo a:response.displayString
+    return a:response.displayString
 endfunc
 " }}}
 
@@ -421,17 +428,22 @@ endfunc
 " }}}
 
 " {{{ references
-func! tscompletejob#get_references() abort
+func! tscompletejob#references() abort
     call s:reloadAll()
-    let id = s:sendFileLocationCommand("referencesForVim", 1)
-    return tscompletejob#wait_response(id)
+    let id = s:sendFileLocationCommand("referencesForVim", function("s:reference_callback"))
+    echo "tscompletejob: search references ..."
+    return id
 endfunc
 
-func! tscompletejob#references() abort
-    let res = tscompletejob#get_references()
+func! s:reference_callback(request_id, success, response)
+    echo ""
+    if !a:success
+        return
+    endif
+
     lexpr []
-    if (len(res) > 0)
-        laddexpr res
+    if (len(a:response) > 0)
+        laddexpr a:response
         lopen
         nmap <silent> <buffer> q :lclose<CR>
     endif
@@ -491,6 +503,15 @@ func! tscompletejob#dump()
     for file in s:bufmgr.getFileNames()
         echom string(s:bufmgr.dumpFileContent(file))
     endfor
+endfunc
+
+func! tscompletejob#is_request_done(id) abort
+    let r = s:tsclient.getRequest(a:id)
+    if type(r) == type({})
+        return v:false
+    else
+        return v:true
+    endif
 endfunc
 "}}}
 

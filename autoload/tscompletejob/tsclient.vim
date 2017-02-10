@@ -133,9 +133,15 @@ endfunc
 
 func! s:getRequest(req_id) dict
     if type(a:req_id) == type(1)
-        return self.requests[string(a:req_id)]
+        let key = string(a:req_id)
     else
-        return self.requests[a:req_id]
+        let key = a:req_id
+    endif
+
+    if has_key(self.requests, key)
+        return self.requests[key]
+    else
+        return v:false
     endif
 endfunc
 
