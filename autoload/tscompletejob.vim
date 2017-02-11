@@ -357,6 +357,7 @@ endfunc
 " {{{ rename
 let s:renameGroups = []
 func! tscompletejob#rename(findInComment, findInString, ...) abort
+    call s:ensureReload(expand("%:p"))
     call s:reloadAll()
 
     if (a:0 > 0)
