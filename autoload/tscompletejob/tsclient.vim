@@ -33,6 +33,7 @@ func! s:ensureStart() dict
     let self.job = tscompletejob#jobcompat#start(self.tssCommand, self, {
                 \ 'out_cb' : function("s:onOut"),
                 \ 'close_cb' : function("s:onClose"),
+                \ 'err_cb' : function("s:onErr"),
                 \ })
     let self.ch = tscompletejob#jobcompat#get_channel(self.job)
 endfunc
@@ -89,8 +90,12 @@ func! s:onOut(self, job, msg) dict
     endtry
 endfunc
 
-func! s:onClose(this, ch) dict
+func! s:onClose(this, ch)
     call a:this.ensureStop()
+endfunc
+
+func! s:onErr(this, ch, data)
+    echoerr string(a:data)
 endfunc
 
 func! s:ensureStop() dict

@@ -15,6 +15,10 @@ func! s:nvimOnExit(job, data, event) dict
     call self.close_cb(self.this, a:job)
 endfunc
 
+func! s:nvimOnErr(job, data, event) dict
+    call self.err_cb(self.this, a:job, a:data)
+endfunc
+
 func! tscompletejob#jobcompat#start(command, this, opts) abort
     if has('nvim')
         let nvim_opts = {
@@ -22,12 +26,14 @@ func! tscompletejob#jobcompat#start(command, this, opts) abort
                     \ "on_stdout" : function("s:nvimOnStdout"),
                     \ "on_exit" : function("s:nvimOnExit"),
                     \ "out_cb" : a:opts.out_cb,
+                    \ "err_cb" : a:opts.err_cb,
                     \ "close_cb" : a:opts.close_cb,
                     \ }
         return jobstart(a:command, nvim_opts)
     else
         let vim_opts = {
                     \ "out_cb": function(a:opts.out_cb, [a:this]),
+                    \ "err_cb": function(a:opts.err_cb, [a:this]),
                     \ "close_cb" : function(a:opts.close_cb, [a:this]),
                     \ }
         return job_start(a:command, vim_opts)
