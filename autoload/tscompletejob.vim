@@ -232,6 +232,7 @@ func! tscompletejob#goto_definition() abort
 endfunc
 
 func! s:goto_definition_callback(request_id, success, response)
+    echo ""
     if !a:success
         return
     endif
