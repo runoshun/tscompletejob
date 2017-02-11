@@ -37,14 +37,27 @@ func! s:ensureStart() dict
     let self.ch = tscompletejob#jobcompat#get_channel(self.job)
 endfunc
 
+let s:current_content_length = 0
+let s:current_content = ""
 func! s:onOut(self, job, msg) dict
     let this = a:self
-    if a:msg =~ "^Content-Length:" || a:msg =~ "^No content"
+    if a:msg =~ "^No content"
+        let s:current_content_length = 0
+        return
+    elseif a:msg =~ "^Content-Length:"
+        let s:current_content_length = str2nr(a:msg[15:])
+        return
+    endif
+
+    " in nvim, response data may be cut in the middle of json.
+    " so we check content length and accumulate content if needed.
+    let s:current_content = s:current_content . a:msg
+    if s:current_content_length != (len(s:current_content) + 1)
         return
     endif
 
     try
-        let res = json_decode(a:msg)
+        let res = json_decode(s:current_content)
         if type(res) == type({})
                     \ && has_key(res, "request_seq")
                     \ && has_key(this.requests, string(res.request_seq))
@@ -70,6 +83,9 @@ func! s:onOut(self, job, msg) dict
         endif
     catch
         echoerr v:exception
+    finally
+        let s:current_content_length = 0
+        let s:current_content = ""
     endtry
 endfunc
 
