@@ -61,15 +61,14 @@ By default, signature help is shown at `CursorHold` event, If help exists at cur
 let g:syntastic_typescript_checkers = ["tscompletejob"]
 ```
 
-### Rename
-It rename symbols include other references.
-Move cursor to symbol which you want to rename, and execute `:TsCompleteJobRename`. By default, it is mapped to `<LocalLeader>r`.
+### Other features
+ - Symbol rename `:TsCompleteJobRename`
+ - Code formatting `:TsCompleteJobFormat`
+ - Show Occurrences `:TsCompleteJobReferences`
+ - Quick code fix `:TsCompleteJobCodeFix`
+About default key mappings, see [help](doc/tscompletejob.txt).
 
-### Code format
-Format source code.
-If you want to format the whole file, execute `:TsCompleteJobFormat`. It also accept range arguments. By default, it is mapped to `<LocalLeader>f`.
-
-### Others
+### Debugging
 `:TsCompleteJobStatus` show status of job. If you need restart job, you can use `TsCompleteJobRestart`.
 
 

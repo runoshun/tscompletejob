@@ -56,17 +56,13 @@ Filetype`typescript`に対してデフォルトで`omnifunc=tscompletejob#comple
 let g:syntastic_typescript_checkers = ["tscompletejob"]
 ```
 
-### リネーム
-シンボルをリネームします。複数ファイルに出現する場合、バッファを開いた上でリネームします。
-リネームしたいシンボル上にカーソルを移動させ、`:TsCompleteJobRename`を実行してください。デフォルトでは`<LocalLeader>r`にマップされます。
+### その他機能
+ - シンボルのリネーム `:TsCompleteJobRename`
+ - コードフォーマット `:TsCompleteJobFormat`
+ - 参照一覧表示 `:TsCompleteJobReferences`
+ - コードフィックス `:TsCompleteJobCodeFix`
+デフォルトキーマップは[ヘルプ](doc/tscompletejob.jax)を参照してください
 
-### コードフォーマット
-ソースコードのフォーマットを行います。
-ファイル全体をフォーマットする場合、`:TsCompleteJobFormat`を実行してください。特定の範囲のみフォーマットする場合は範囲指定して同じコマンドを実行してください。デフォルトでは`<LocalLeader>f`にマップされます(visual modeでもマップされます)。
-
-#### 参照一覧表示
-シンボルの参照をロケーションリストに表示します。
-表示したいシンボル上にカーソルを移動させ、`:TsCompleteJobReferences`を実行してください。デフォルトでは`<LocalLeader>u`にマップされます。
 
 #### その他
 `:TsCompleteJobStatus`でtsserverラッパーを実行しているjobのステータスを表示できます。jobを再起動する場合は`:TsCompleteJobRestart`を実行してください。

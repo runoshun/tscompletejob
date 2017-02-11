@@ -75,9 +75,15 @@ func! s:applyEditBatches(batches) abort
                 call add(lineParts, lineStr[offset:edit.start-2])
             endif
 
-            if edit.replace =~# "" || edit.replace =~# nr2char(10)
+            if edit.replace == "" || edit.replace == nr2char(10)
                 call add(lines[line], join(lineParts, ""))
                 let lineParts = []
+            elseif edit.replace =~# "" || edit.replace =~# nr2char(10)
+                for replace in split(edit.replace, "\r\\?\n", 1)
+                    call add(lineParts, replace)
+                    call add(lines[line], join(lineParts, ""))
+                    let lineParts = []
+                endfor
             else
                 call add(lineParts, edit.replace)
             endif
@@ -402,15 +408,19 @@ endfunc
 
 " {{{ format
 func! tscompletejob#format() range abort
+    call s:formatImpl(a:firstline, a:lastline)
+endfunc
+
+func! s:formatImpl(start, end) abort
     call s:configureFormatOptions()
 
     let file = expand("%:p")
     call s:ensureReload(file)
     let id = tscompletejob#send_command("format", 1, {
                 \ "file" : file,
-                \ "line" : a:firstline,
+                \ "line" : a:start,
                 \ "offset" : 1,
-                \ "endLine" : a:lastline + 1,
+                \ "endLine" : a:end + 1,
                 \ "endOffset" : 1
                 \ })
     let res = tscompletejob#wait_response(id)
@@ -455,6 +465,94 @@ func! s:reference_callback(request_id, success, response)
 endfunc
 " }}}
 
+"{{{ codefix
+func! tscompletejob#codefix(...) abort
+    if a:0 > 0 " for testing
+        let force = a:1
+    else
+        let force = 0
+    endif
+
+    call s:ensureReload(expand("%:p"))
+    call s:reloadAll()
+    let id = tscompletejob#send_command("codeFixAtPositionForVim", 1, {
+                \ "startLine": line("."),
+                \ "startOffset": col("."),
+                \ "file": expand("%:p"),
+                \ })
+    let res = tscompletejob#wait_response(id)
+
+    if force
+        let fix = res[0]
+    else
+        let fix = s:confirmFix(res)
+        if fix == {}
+            return
+        endif
+    endif
+
+    let starts = []
+    let ends = []
+    for change in fix.changes
+        let file = change.fileName
+        let batches = { }
+        for tc in change.textChanges
+            call s:addEditBatch(batches, tc.start.line, tc.start.offset, tc.end.offset, tc.newText)
+            call add(starts, tc.start.line)
+            call add(ends, tc.end.line + count(split(tc.newText, "\\zs"), "\n"))
+        endfor
+
+        let s:codefix_batches = batches
+        let cmd = " +call\\ s:applyCodeFix() "
+        let open = tscompletejob#utils#is_buf_exists(file) ? ":buffer" : ":edit"
+        exec open . cmd . file
+        unlet s:codefix_batches
+        call s:ensureReload(file)
+    endfor
+
+    call s:formatImpl(min(starts), max(ends))
+
+endfunc
+
+func! s:confirmFix(res) abort
+    if len(a:res) == 0
+        return {}
+    elseif len(a:res) == 1
+        let fix = a:res[0]
+    else
+        let idx = s:selectCodeFix(a:res)
+        if idx < 0 || len(a:res) < idx
+            return {}
+        endif
+        let fix = a:res[idx]
+    endif
+
+    if g:tscompletejob_codefix_comfirm
+        let result = input(fix.description . " y/n: ")
+        if (result != "y" || result != "Y")
+            call s:warn("canceled")
+            return {}
+        endif
+    endif
+
+    return fix
+endfunc
+
+func! s:selectCodeFix(res) abort
+    let fixes = []
+    for i in range(len(a:res))
+        call add(fixes, i . ": " . a:res[i].description)
+    endfor
+
+    return inputlist(fixes)
+endfunc
+
+func! s:applyCodeFix() abort
+    call s:applyEditBatches(s:codefix_batches)
+endfunc
+
+"}}}
+
 " {{{ plugin initialize
 func! s:defineConfg(force, name, ...)
     if a:0 == 1 && (!exists(a:name) || a:force)
@@ -494,6 +592,8 @@ func! tscompletejob#init_plugin(force)
                 \ "placeOpenBraceOnNewLineForFunctions": v:false,
                 \ "placeOpenBraceOnNewLineForControlBlocks": v:false,
                 \ })
+
+    call s:defineConfg(a:force, "g:tscompletejob_codefix_comfirm", 0)
 endfunc
 " }}}
 

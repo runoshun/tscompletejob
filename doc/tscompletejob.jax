@@ -64,6 +64,10 @@ COMMANDS                                              *tscompletejob-commands*
             ファイルのフォーマットを行います。範囲指定しない場合はファイル全
             体が対象となります。
 
+                                                        *TsCompleteJobCodeFix*
+:[range]TsCompleteJobCodeFix
+            現在のカーソル位置でコードフィックスを実行します。
+
 ============================================================================
 
 SETTINGS                                              *tscompletejob-settings*
@@ -122,6 +126,10 @@ g:tscompletejob_format_options = { ... }
             各オプションの詳しい説明は下記を参照してください。
             https://github.com/Microsoft/TypeScript/blob/master/src/server/protocol.d.ts
 
+                                             *g:tscompletejob_codefix_comfirm*
+g:tscompletejob_codefix_comfirm = 0
+            非0を設定するとコードフィックス実行前に確認がおこなわれます。
+
 ==============================================================================
 
 MAPPINGS                                              *tscompletejob-mappings*
@@ -135,6 +143,7 @@ Normal mode
         <Plug>(TsCompleteJobReferences)      :TsCompleteJobReferences<CR>
         <Plug>(TsCompleteJobRename)          :TsCompleteJobRename<CR>
         <Plug>(TsCompleteJobFormat)          :TsCompleteJobFormat<CR>
+        <Plug>(TsCompleteJobCodeFix)         :TsCompleteJobCodeFix<CR>
 
 Visual mode
         <Plug>(TsCompleteJobFormat)          :TsCompleteJobFormat<CR>
@@ -150,6 +159,7 @@ Normal mode
         <LocalLeader>u          <Plug>(TsCompleteJobReferences)
         <LocalLeader>r          <Plug>(TsCompleteJobRename)
         <LocalLeader>f          <Plug>(TsCompleteJobFormat)
+        <C-x>                   <Plug>(TsCompleteJobCodeFix)
 
 Visual mode
         <LocalLeader>f          <Plug>(TsCompleteJobFormat)
@@ -160,7 +170,7 @@ LICENSE                                                *tscompletejob-license*
 
 The MIT License (MIT)
 
-Copyright (c) 2016 <runoshun@gmail.com>
+Copyright (c) 2017 <runoshun@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

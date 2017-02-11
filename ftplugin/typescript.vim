@@ -19,12 +19,14 @@ command! -buffer TsCompleteJobQuickInfo         :call tscompletejob#quickinfo()
 command! -buffer TsCompleteJobReferences        :call tscompletejob#references()
 command! -buffer TsCompleteJobRename            :call tscompletejob#rename(0,0)
 command! -buffer -range=% TsCompleteJobFormat   :<line1>,<line2>call tscompletejob#format()
+command! -buffer TsCompleteJobCodeFix           :call tscompletejob#codefix()
 
 nnoremap <silent> <buffer> <Plug>(TsCompleteJobGotoDefinition)  :TsCompleteJobGotoDefinition<CR>
 nnoremap <silent> <buffer> <Plug>(TsCompleteJobQuickInfo)       :TsCompleteJobQuickInfo<CR>
 nnoremap <silent> <buffer> <Plug>(TsCompleteJobReferences)      :TsCompleteJobReferences<CR>
 nnoremap <silent> <buffer> <Plug>(TsCompleteJobRename)          :TsCompleteJobRename<CR>
 nnoremap <silent> <buffer> <Plug>(TsCompleteJobFormat)          :TsCompleteJobFormat<CR>
+nnoremap <silent> <buffer> <Plug>(TsCompleteJobCodeFix)         :TsCompleteJobCodeFix<CR>
 
 vnoremap <silent> <buffer> <Plug>(TsCompleteJobFormat)          :TsCompleteJobFormat<CR>
 
@@ -34,6 +36,7 @@ if (!g:tscompletejob_mappings_disable_default)
     nmap <buffer> <LocalLeader>u <Plug>(TsCompleteJobReferences)
     nmap <buffer> <LocalLeader>r <Plug>(TsCompleteJobRename)
     nmap <buffer> <LocalLeader>f <Plug>(TsCompleteJobFormat)
+    nmap <buffer> <C-x>          <Plug>(TsCompleteJobCodeFix)
 
     vmap <buffer> <LocalLeader>f <Plug>(TsCompleteJobFormat)
 endif

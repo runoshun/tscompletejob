@@ -666,4 +666,35 @@ startTsServer(function (server) {
             return { response: [], responseRequired : true };
         }
     });
+
+    function findErrorAtPosition(args, diags) {
+        var startLine = args.startLine;
+        var startCol = args.startOffset;
+        var endLine = args.endLine || args.startLine;
+        var endCol = args.endOffset || args.startOffset;
+        for(var i = 0; i < diags.length; ++i) {
+            var d = diags[i];
+            var isAfterStart = (startLine > d.start.line) || (startLine == d.start.line && startCol >= d.start.offset);
+            var isBeforeEnd  = (endLine < d.end.line) || (endLine == d.end.line && endCol <= d.end.offset);
+            if (isAfterStart && isBeforeEnd) {
+                return d;
+            }
+        }
+    };
+
+    server.addProtocolHandler("codeFixAtPositionForVim", function(request) {
+        var args = request.arguments;
+
+        var codefixes = server.getSupportedCodeFixes();
+        var diags = server.getSemanticDiagnosticsSync(args);
+
+        var error = findErrorAtPosition(args, diags);
+        if (error && codefixes.indexOf(error.code.toString()) != -1) {
+            args.errorCodes = [error.code];
+            return { response: server.getCodeFixes(args, true), responseRequired: true }
+        }
+        else {
+            return { response: [], responseRequired: true };
+        }
+    });
 });

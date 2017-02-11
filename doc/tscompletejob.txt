@@ -60,6 +60,10 @@ COMMANDS                                              *tscompletejob-commands*
 :[range]TsCompleteJobFormat
             Format source codes. If no range passed, it format whole file.
 
+                                                        *TsCompleteJobCodeFix*
+:TsCompleteJobCodeFix
+            Perform codefix at current cursor position.
+
 ============================================================================
 
 SETTINGS                                              *tscompletejob-settings*
@@ -119,6 +123,10 @@ g:tscompletejob_format_options = { ... }
             Please refer following source about the description of each options.
             https://github.com/Microsoft/TypeScript/blob/master/src/server/protocol.d.ts
 
+                                             *g:tscompletejob_codefix_comfirm*
+g:tscompletejob_codefix_comfirm = 0
+            If it is set to non 0, show confirmation before code fix.
+
 ==============================================================================
 
 MAPPINGS                                              *tscompletejob-mappings*
@@ -132,6 +140,7 @@ Normal mode
         <Plug>(TsCompleteJobReferences)      :TsCompleteJobReferences<CR>
         <Plug>(TsCompleteJobRename)          :TsCompleteJobRename<CR>
         <Plug>(TsCompleteJobFormat)          :TsCompleteJobFormat<CR>
+        <Plug>(TsCompleteJobCodeFix)         :TsCompleteJobCodeFix<CR>
 
 Visual mode
         <Plug>(TsCompleteJobFormat)          :TsCompleteJobFormat<CR>
@@ -148,6 +157,7 @@ Normal mode
         <LocalLeader>u          <Plug>(TsCompleteJobReferences)
         <LocalLeader>r          <Plug>(TsCompleteJobRename)
         <LocalLeader>f          <Plug>(TsCompleteJobFormat)
+        <C-x>                   <Plug>(TsCompleteJobCodeFix)
 
 Visual mode
         <LocalLeader>f          <Plug>(TsCompleteJobFormat)
@@ -158,7 +168,7 @@ LICENSE                                                *tscompletejob-license*
 
 The MIT License (MIT)
 
-Copyright (c) 2016 <runoshun@gmail.com>
+Copyright (c) 2017 <runoshun@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

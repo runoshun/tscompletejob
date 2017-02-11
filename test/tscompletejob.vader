@@ -15,6 +15,9 @@ Before:
   let format_ts = tscompletejob#utils#join_path(
                     \ tscompletejob#get_plugin_dir(),
                     \ tscompletejob#utils#join_path("test", "format.ts"))
+  let codefix_ts = tscompletejob#utils#join_path(
+                    \ tscompletejob#get_plugin_dir(),
+                    \ tscompletejob#utils#join_path("test", "codefix.ts"))
 
 After:
   exec "buffer " . current_buf
@@ -149,6 +152,25 @@ Execute (complete with async callback works correctly):
      AssertEqual 3, len(response)
    endfunction
    call Assert()
+
+Execute (codefix can be applied correctly):
+  exec "edit " . codefix_ts
+  call cursor(6, 7)
+  call tscompletejob#codefix(1)
+
+  AssertEqual "abstract class Greeter {",                             getline(2)
+  AssertEqual "    abstract greet(): String;",                        getline(3)
+  AssertEqual "}",                                                    getline(4)
+
+  AssertEqual "class Person extends Greeter {",                       getline(6)
+  AssertEqual "    greet(): String {",                                getline(7)
+  AssertEqual "        throw new Error('Method not implemented.');",  getline(8)
+  AssertEqual "    }",                                                getline(9)
+
+
+  AssertEqual "}",                                                    getline(12)
+  normal u
+
 
 Execute (quickinfo can returns correct infomation):
   exec "edit " . sample1
