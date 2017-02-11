@@ -180,11 +180,16 @@ func! tscompletejob#complete_with_handler(findstart, base, handler) abort
     let l:offset = col('.')
 
     if a:findstart
-        let l:start = l:offset 
+        if a:base != "" " for asynccomplete
+            let l:line_str = a:base
+            let l:offset = len(a:base) + 1
+        endif
+
+        let l:start = l:offset
         while l:start > 0 && l:line_str[l:start-2] =~ "\\k"
             let l:start -= 1
         endwhile
-        return l:start - 1
+        return l:start
     else
         let l:file = expand("%:p")
         call s:ensureReload(l:file)

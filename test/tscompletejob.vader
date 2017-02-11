@@ -53,7 +53,7 @@ Execute (complete findstart returns correct values):
   call cursor(27,3)
   normal a
   let pos = tscompletejob#complete(1,"")
-  AssertEqual 2, pos
+  AssertEqual 3, pos
   let completions = tscompletejob#complete(0, "m")
   AssertEqual type([]), type(completions)
   AssertEqual 3, len(completions)
