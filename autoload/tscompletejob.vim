@@ -604,6 +604,14 @@ func! tscompletejob#get_plugin_dir()
     return fnamemodify(s:script_dir, ":h")
 endfunc
 
+func! tscompletejob#enable_perflog()
+    let g:tscompletejob__preflog__ = 1
+endfunc
+
+func! tscompletejob#enable_debug()
+    let g:tscompletejob__debug__ = 1
+endfunc
+
 func! tscompletejob#dump()
     echom tscompletejob#status()
     echom string(s:bufmgr.getFileNames())
