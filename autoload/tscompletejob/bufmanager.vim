@@ -7,6 +7,7 @@ func! tscompletejob#bufmanager#create()
     let obj = {
               \ "buffers" : { },
               \ "getFileNames" : function("s:getFileNames"),
+              \ "getFileName" : function("s:getFileName"),
               \ "addBuffer" : function("s:addBuffer"),
               \ "getTmpFile" : function("s:getTmpFile"),
               \ "flushTmpFile" : function("s:flushTmpFile"),
@@ -23,6 +24,10 @@ endfunc
 
 func! s:getFileNames() dict
     return map(values(self.buffers), "v:val['filename']")
+endfunc
+
+func! s:getFileName(name) dict
+    return self.buffers[s:getkey(a:name)].filename
 endfunc
 
 func! s:addBuffer(filename) dict

@@ -170,7 +170,10 @@ func! tscompletejob#wait_response(id, ...) abort
 endfunc
 
 func! tscompletejob#add_buffer(bufname)
-    call s:bufmgr.addBuffer(a:bufname)
+    let key = s:bufmgr.addBuffer(a:bufname)
+    if (g:tscompletejob_load_on_buf_open)
+        call s:ensureReload(s:bufmgr.getFileName(key))
+    endif
 endfunc
 " }}}
 
@@ -571,6 +574,7 @@ func! tscompletejob#init_plugin(force)
     call s:defineConfg(a:force, "g:tscompletejob_node_cmd", "node")
     call s:defineConfg(a:force, "g:tscompletejob_custom_tsserverlibrary")
     call s:defineConfg(a:force, "g:tscompletejob_autoload_filetypes", [".ts", ".tsx"])
+    call s:defineConfg(a:force, "g:tscompletejob_load_on_buf_open", 1)
 
     call s:defineConfg(a:force, "g:tscompletejob_mappings_disable_default", 0)
 
