@@ -38,14 +38,19 @@ func! s:ensureStart() dict
     let self.ch = tscompletejob#jobcompat#get_channel(self.job)
 endfunc
 
-let s:current_content_length = 0
-let s:current_content = ""
+func! s:clearResponseCache()
+    let s:current_content_length = 0
+    let s:current_content = ""
+endfunc
+call s:clearResponseCache()
+
 func! s:onOut(self, job, msg) dict
     let this = a:self
     if a:msg =~ "^No content"
-        let s:current_content_length = 0
+        call s:clearResponseCache()
         return
     elseif a:msg =~ "^Content-Length:"
+        call s:clearResponseCache()
         let s:current_content_length = str2nr(a:msg[15:])
         return
     endif
@@ -53,7 +58,12 @@ func! s:onOut(self, job, msg) dict
     " in nvim, response data may be cut in the middle of json.
     " so we check content length and accumulate content if needed.
     let s:current_content = s:current_content . a:msg
-    if s:current_content_length != (len(s:current_content) + 1)
+    let len = len(s:current_content) + 1
+    if s:current_content_length > len
+        return
+    elseif s:current_content_length < len
+        " something is wrong, so response is dropped
+        call s:clearResponseCache()
         return
     endif
 
@@ -85,8 +95,7 @@ func! s:onOut(self, job, msg) dict
     catch
         echoerr v:exception
     finally
-        let s:current_content_length = 0
-        let s:current_content = ""
+        call s:clearResponseCache()
     endtry
 endfunc
 
