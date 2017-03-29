@@ -170,6 +170,9 @@ func! tscompletejob#wait_response(id, ...) abort
 endfunc
 
 func! tscompletejob#add_buffer(bufname)
+    if a:bufname =~# '^\w\+://'
+        return
+    endif
     let key = s:bufmgr.addBuffer(a:bufname)
     if (g:tscompletejob_load_on_buf_open)
         call s:ensureReload(s:bufmgr.getFileName(key))
