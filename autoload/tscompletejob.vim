@@ -135,6 +135,7 @@ func! s:init_client() abort
     endif
     let s:tsclient = tscompletejob#tsclient#create(tscompletejob#tss_command())
     let s:bufmgr = tscompletejob#bufmanager#create()
+    let s:tagmgr = tscompletejob#tagmanager#create()
 endfunc
 
 func! tscompletejob#status() abort
@@ -243,16 +244,49 @@ func! s:goto_definition_callback(request_id, success, response)
     try
         let locales = a:response
         if (len(locales) > 0)
+            if g:tscompletejob_enable_tagstack
+                call s:tagmgr.pushTagWithCurrentPos()
+            endif
+
             let locale = locales[0]
             let file = expand("%:p")
             if (!tscompletejob#utils#is_same_file(locale.file, file))
                 exec "e " . locale.file
             endif
             call cursor(locale.start.line, locale.start.offset)
+
+            if g:tscompletejob_enable_tagstack
+                call s:tagmgr.pushTagWithCurrentPos()
+            endif
         endif
     catch
         echoerr v:exception
     endtry
+endfunc
+
+" simple implementation of tagstack
+" TODO: more user friendly error/messages
+func! tscompletejob#goto_prev()
+    call s:tagmgr.followTags(-1)
+endfunc
+
+func! tscompletejob#goto_next()
+    call s:tagmgr.followTags(1)
+endfunc
+
+func! tscompletejob#goto_index(idx)
+    call s:tagmgr.setCurrentIndex(a:idx)
+endfunc
+
+func! tscompletejob#tags()
+    if !g:tscompletejob_enable_tagstack
+        echo "tagstack disabled. to use tagstack, do 'let g:tscompletejob_enable_tagstack = 1'"
+    else
+        echo "current: " . s:tagmgr.getCurrentIndex()
+        for tag in s:tagmgr.getTags()
+            echo tag.filename . ", line: " . tag.line . ", col: " tag.col
+        endfor
+    endif
 endfunc
 " }}}
 
@@ -583,6 +617,8 @@ func! tscompletejob#init_plugin(force)
     call s:defineConfg(a:force, "g:tscompletejob_complete_disable_detail", 0)
     call s:defineConfg(a:force, "g:tscompletejob_complete_max_detail_count", 50)
 
+    call s:defineConfg(a:force, "g:tscompletejob_enable_tagstack", 0)
+
     call s:defineConfg(a:force, "g:tscompletejob_signature_help_disable", 0)
     call s:defineConfg(a:force, "g:tscompletejob_signature_help_disable_docs", 0)
 
@@ -632,6 +668,10 @@ func! tscompletejob#is_request_done(id) abort
     else
         return v:true
     endif
+endfunc
+
+func! tscompletejob#get_tagstack() abort
+    return s:tagmgr.getTags()
 endfunc
 "}}}
 

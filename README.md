@@ -46,6 +46,7 @@ etc. or define ftdetect by yourself.
 ### Goto Definition
 It jump to difinition of variable or type.
 Move cursor to symbol which you want to find difinition, and execute `:TsCompleteJobGotoDefinition`. By default, the command is mapped to `C-]`.
+And you can use simple tagstack like feature by setting `g:tscompletejob_enable_tagstack` to 1. If tagstack is enabled, tscompletejob record history of cursor position when executing `:TsCompleteJobGotoDefinition`, and you can follow history using `:TsCompleteJobGotoPrev` (mapped to `C-t`), `:TsCompleteJobGotoNext`.
 
 ### Quick info
 It show symbol's quick infomation to command line.

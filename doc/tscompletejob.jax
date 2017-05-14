@@ -44,6 +44,18 @@ COMMANDS                                              *tscompletejob-commands*
             カーソル下のシンボルの定義箇所に移動します。定義が異なるファイル
             に存在する場合には、該当のファイルを開いた上で移動します。
 
+                                                       *TsCompleteJobGotoPrev*
+:TsCompleteJobGotoPrev
+            |TsCompleteJobGotoDefinition|で移動した履歴に沿って1つ前の位置に
+            カーソルを移動させます。利用するためには
+            |tscompletejob_enable_tagstack|を1に設定する必要があります。
+
+                                                       *TsCompleteJobGotoNext*
+:TsCompleteJobGotoNext
+            |TsCompleteJobGotoDefinition|で移動した履歴に沿って1つ次の位置に
+            カーソルを移動させます。利用するためには
+            |tscompletejob_enable_tagstack|を1に設定する必要があります。
+
                                                       *TsCompleteJobQuickInfo*
 :TsCompleteJobQuickInfo
             カーソル下のシンボルの定義情報をコマンドラインに表示します。
@@ -110,6 +122,10 @@ g:tscompletejob_complete_max_detail_count = 50
             補完時に詳細情報を表示する最大候補数。これを超える候補が存在する
             場合、すべての候補について詳細情報は表示されません。
 
+                                             *g:tscompletejob_enable_tagstack*
+g:tscompletejob_enable_tagstack = 0
+            非0を設定すると|:TsCompleteJobGotoDefinition|の際に履歴を記録します。
+
                                       *g:tscompletejob_signature_help_disable*
 g:tscompletejob_signature_help_disable = 0
             非0を設定すると'CursorHoldI'イベントでのシグネチャ情報表示が無効
@@ -139,6 +155,8 @@ MAPPINGS                                              *tscompletejob-mappings*
 
 Normal mode
         <Plug>(TsCompleteJobGotoDefinition)  :TsCompleteJobGotoDefinition<CR>
+        <Plug>(TsCompleteJobGotoNext)        :TsCompleteJobGotoNext<CR>
+        <Plug>(TsCompleteJobGotoPrev)        :TsCompleteJobGotoPrev<CR>
         <Plug>(TsCompleteJobQuickInfo)       :TsCompleteJobQuickInfo<CR>
         <Plug>(TsCompleteJobReferences)      :TsCompleteJobReferences<CR>
         <Plug>(TsCompleteJobRename)          :TsCompleteJobRename<CR>
@@ -155,6 +173,7 @@ Visual mode
 
 Normal mode
         <C-]>                   <Plug>(TsCompleteJobGotoDefinition)
+        <C-t>                   <Plug>(TsCompleteJobGotoPrev)
         <LocalLeader>i          <Plug>(TsCompleteJobQuickInfo)
         <LocalLeader>u          <Plug>(TsCompleteJobReferences)
         <LocalLeader>r          <Plug>(TsCompleteJobRename)

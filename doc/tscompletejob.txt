@@ -44,6 +44,18 @@ COMMANDS                                              *tscompletejob-commands*
             the definition exists in another file, it open that file and
             move the cursor to the position.
 
+                                                       *TsCompleteJobGotoPrev*
+:TsCompleteJobGotoPrev
+            Move the cursor to previous possition according to history
+            recorded by |TsCompleteJobGotoDefinition|. If you use this feature,
+            |tscompletejob_enable_tagstack| must be set to 1
+
+                                                       *TsCompleteJobGotoNext*
+:TsCompleteJobGotoNext
+            Move the cursor to next possition according to history
+            recorded by |TsCompleteJobGotoDefinition|. If you use this feature,
+            |tscompletejob_enable_tagstack| must be set to 1
+
                                                       *TsCompleteJobQuickInfo*
 :TsCompleteJobQuickInfo
             Show quick infomation of symbol under the cursor to command line. 
@@ -107,6 +119,11 @@ g:tscompletejob_complete_max_detail_count = 50
             Max number of candidates to show detail infomation. If candidates
             exceeds this value, all detail information are ommited.
 
+                                             *g:tscompletejob_enable_tagstack*
+g:tscompletejob_enable_tagstack = 0
+            If it is set to non 0, |:TsCompleteJobGotoDefinition| records
+            history of cursor positions.
+
                                       *g:tscompletejob_signature_help_disable*
 g:tscompletejob_signature_help_disable = 0
             If it is set to non 0, call signature help on 'CursorHoldI' event
@@ -136,6 +153,8 @@ Following mappings are defined as buffer local mapping. Please see
 
 Normal mode
         <Plug>(TsCompleteJobGotoDefinition)  :TsCompleteJobGotoDefinition<CR>
+        <Plug>(TsCompleteJobGotoNext)        :TsCompleteJobGotoNext<CR>
+        <Plug>(TsCompleteJobGotoPrev)        :TsCompleteJobGotoPrev<CR>
         <Plug>(TsCompleteJobQuickInfo)       :TsCompleteJobQuickInfo<CR>
         <Plug>(TsCompleteJobReferences)      :TsCompleteJobReferences<CR>
         <Plug>(TsCompleteJobRename)          :TsCompleteJobRename<CR>
@@ -153,6 +172,7 @@ key mappings are defined as buffer local mapping.
 
 Normal mode
         <C-]>                   <Plug>(TsCompleteJobGotoDefinition)
+        <C-t>                   <Plug>(TsCompleteJobGotoPrev)
         <LocalLeader>i          <Plug>(TsCompleteJobQuickInfo)
         <LocalLeader>u          <Plug>(TsCompleteJobReferences)
         <LocalLeader>r          <Plug>(TsCompleteJobRename)

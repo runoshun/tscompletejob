@@ -73,6 +73,38 @@ Execute (goto difinition can move to correct pos):
   AssertEqual 6, line
   AssertEqual 7, col
 
+Execute (tagstack works correctly):
+  let g:tscompletejob_enable_tagstack = 1
+  exec "edit " . sample1
+  call cursor(25, 13)
+  let id = tscompletejob#goto_definition()
+  while !tscompletejob#is_request_done(id)
+    sleep 50m
+  endwhile
+  call cursor(15, 17)
+  let id = tscompletejob#goto_definition()
+  while !tscompletejob#is_request_done(id)
+    sleep 50m
+  endwhile
+  let tags = tscompletejob#get_tagstack()
+  AssertEqual 4, len(tags)
+
+  call tscompletejob#goto_prev()
+  AssertEqual 15, line(".")
+  AssertEqual 17, col(".")
+
+  call tscompletejob#goto_prev()
+  AssertEqual 15, line(".")
+  AssertEqual 7, col(".")
+
+  call tscompletejob#goto_next()
+  AssertEqual 15, line(".")
+  AssertEqual 17, col(".")
+
+  call tscompletejob#goto_next()
+  AssertEqual 6, line(".")
+  AssertEqual 7, col(".")
+
 Execute (signature_help can returns correct signatures):
   exec "edit " . sample1
   call cursor(29, 11)
