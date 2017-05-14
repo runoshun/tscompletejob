@@ -51,19 +51,20 @@ func! s:onOut(self, job, msg) dict
         return
     elseif a:msg =~ "^Content-Length:"
         call s:clearResponseCache()
-        let s:current_content_length = str2nr(a:msg[15:])
+        let s:current_content_length = str2nr(a:msg[15:]) - 1 " 1 is termination cr
         return
     endif
 
     " in nvim, response data may be cut in the middle of json.
     " so we check content length and accumulate content if needed.
     let s:current_content = s:current_content . a:msg
-    let len = len(s:current_content) + 1
+
+    " in nvim windows(0.2), len() returns different result vim/nvim linux (may
+    " be not included cr?)
+    let len = len(s:current_content)
+    "call tscompletejob#utils#log("content_length = " . s:current_content_length)
+    "call tscompletejob#utils#log("len = " . len)
     if s:current_content_length > len
-        return
-    elseif s:current_content_length < len
-        " something is wrong, so response is dropped
-        call s:clearResponseCache()
         return
     endif
 
