@@ -30,12 +30,24 @@ func! s:getFileName(name) dict
     return self.buffers[s:getkey(a:name)].filename
 endfunc
 
+func! s:_isIgnoredFile(filename)
+    for ignore_pat in g:tscompletejob_ignore_file_patterns
+        if a:filename =~# ignore_pat
+            return 1
+        endif
+    endfor
+    return 0
+endfunc
+
 func! s:addBuffer(filename) dict
     let bn = s:getkey(a:filename)
-    let filename = tscompletejob#utils#abspath(a:filename)
     if (l:bn == -1)
-        throw "invalid buffer"
+        call tscompletejob#utils#log("invalid buffer: " . a:filename)
+        return -1
+    elseif (s:_isIgnoredFile(a:filename))
+        return -1
     elseif (!has_key(self.buffers, string(bn)))
+        let filename = tscompletejob#utils#abspath(a:filename)
         let self.buffers[string(l:bn)] = {
                     \ "filename" : filename,
                     \ "tmpfile" : tempname(),

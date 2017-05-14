@@ -56,8 +56,16 @@ else
     endfunc
 endif
 
+func! tscompletejob#utils#is_remote_file(path)
+    if a:path =~# '^\w\+::' || a:path =~# '^\w\+://'
+        return 1
+    else
+        return 0
+    endif
+endfunc
+
 func! tscompletejob#utils#abspath(path)
-    if tscompletejob#utils#is_abspath(a:path)
+    if tscompletejob#utils#is_abspath(a:path) || tscompletejob#utils#is_remote_file(a:path)
         return a:path
     else
         return filereadable(a:path) ?
