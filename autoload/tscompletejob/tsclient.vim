@@ -61,6 +61,8 @@ func! s:onOut(self, job, msg) dict
 
     " in nvim windows(0.2), len() returns different result vim/nvim linux (may
     " be not included cr?)
+    call tscompletejob#utils#log(len(s:current_content))
+    call tscompletejob#utils#log(string(s:current_content))
     let len = len(s:current_content)
     "call tscompletejob#utils#log("content_length = " . s:current_content_length)
     "call tscompletejob#utils#log("len = " . len)
