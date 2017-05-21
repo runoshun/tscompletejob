@@ -76,34 +76,44 @@ Execute (goto difinition can move to correct pos):
 Execute (tagstack works correctly):
   let g:tscompletejob_enable_tagstack = 1
   exec "edit " . sample1
-  call cursor(25, 13)
+  call cursor(32, 1)
   let id = tscompletejob#goto_definition()
   while !tscompletejob#is_request_done(id)
     sleep 50m
   endwhile
-  call cursor(15, 17)
+  call cursor(3, 5)
   let id = tscompletejob#goto_definition()
   while !tscompletejob#is_request_done(id)
     sleep 50m
   endwhile
   let tags = tscompletejob#get_tagstack()
   AssertEqual 4, len(tags)
+  AssertEqual "mod.ts", expand("%:t")
 
   call tscompletejob#goto_prev()
-  AssertEqual 15, line(".")
+  AssertEqual "mod.ts", expand("%:t")
+  AssertEqual 3, line(".")
+  AssertEqual 5, col(".")
+
+  call tscompletejob#goto_prev()
+  AssertEqual "mod.ts", expand("%:t")
+  AssertEqual 2, line(".")
   AssertEqual 17, col(".")
 
   call tscompletejob#goto_prev()
-  AssertEqual 15, line(".")
-  AssertEqual 7, col(".")
+  AssertEqual "sample1.ts", expand("%:t")
+  AssertEqual 32, line(".")
+  AssertEqual 1, col(".")
 
   call tscompletejob#goto_next()
-  AssertEqual 15, line(".")
+  AssertEqual "mod.ts", expand("%:t")
+  AssertEqual 2, line(".")
   AssertEqual 17, col(".")
 
   call tscompletejob#goto_next()
-  AssertEqual 6, line(".")
-  AssertEqual 7, col(".")
+  AssertEqual "mod.ts", expand("%:t")
+  AssertEqual 3, line(".")
+  AssertEqual 5, col(".")
 
 Execute (signature_help can returns correct signatures):
   exec "edit " . sample1

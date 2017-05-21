@@ -27,3 +27,6 @@ let d = new D();
 d.m
 
 d.meth2("hello")
+
+import { foo, bar } from "./mod";
+foo()

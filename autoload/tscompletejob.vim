@@ -267,15 +267,21 @@ endfunc
 " simple implementation of tagstack
 " TODO: more user friendly error/messages
 func! tscompletejob#goto_prev()
-    call s:tagmgr.followTags(-1)
+    if g:tscompletejob_enable_tagstack
+        call s:tagmgr.followTags(-1)
+    endif
 endfunc
 
 func! tscompletejob#goto_next()
-    call s:tagmgr.followTags(1)
+    if g:tscompletejob_enable_tagstack
+        call s:tagmgr.followTags(1)
+    endif
 endfunc
 
 func! tscompletejob#goto_index(idx)
-    call s:tagmgr.setCurrentIndex(a:idx)
+    if g:tscompletejob_enable_tagstack
+        call s:tagmgr.setCurrentIndex(a:idx)
+    endif
 endfunc
 
 func! tscompletejob#tags()

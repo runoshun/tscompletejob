@@ -36,14 +36,14 @@ func! s:pushTag(filename, line, col) dict
     if cur_idx == self.getMaxIndex()
         call s:push(self.tags, tag)
         let self.currentTagIndex = cur_idx + 1
+    elseif cur_idx == 0
+        let self.tags = [tag]
+        let self.currentTagIndex = 0
     else
-        let old = self.tags
-        let new = copy(old[:cur_idx - 1])
+        let new = copy(self.tags[:cur_idx - 1])
         call s:push(new, tag)
         let self.currentTagIndex = cur_idx + 1
-
         let self.tags = new
-        call s:push(self.tagsHistory, old)
     endif
 endfunc
 
@@ -63,8 +63,9 @@ func! s:setCurrentIndex(idx) dict
     let tag = self.tags[a:idx]
 
     let cur_file = expand("%:p")
+    call tscompletejob#utils#log("cur_file: " . cur_file . ", tag.filename: " . tag.filename)
     if (!tscompletejob#utils#is_same_file(tag.filename, cur_file))
-        exec "e " . tag.file
+        exec "e " . tag.filename
     endif
     call cursor(tag.line, tag.col)
 
@@ -81,10 +82,10 @@ func! s:followTags(rel_idx) dict
         echo "Begining of the tag stack"
     elseif cur_idx == max_idx && a:rel_idx > 0
         echo "End of the tag stack"
+    else
+        let to_idx = cur_idx + a:rel_idx
+        call self.setCurrentIndex(to_idx)
     endif
-
-    let to_idx = cur_idx + a:rel_idx
-    call self.setCurrentIndex(to_idx)
 endfunc
 
 func! s:getMaxIndex() dict
