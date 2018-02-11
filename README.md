@@ -73,11 +73,11 @@ About default key mappings, see [help](doc/tscompletejob.txt).
 `:TsCompleteJobStatus` show status of job. If you need restart job, you can use `TsCompleteJobRestart`.
 
 
-About wrapper of tsserver
+Use another typescript version
 -----------------------------------------------------------------------
-Wrapper of tsserver(tsswrapper.js) included in this plugin depends on tsserverlibrary.js. tsserverlibrary.js is distoributed in typescript 2.0 or higher. By default, tsserverlibrary.js shipped with this plugin is used. If you need to use other version of typescript, please set `g:tscompletejob_custom_tsserverlibrary`.
+The typescript version bundled this plugin is currently 2.7.1. If you want use another typescript version, please set `g:tscompletejob_custom_tsserver`.
 ```vim
-let g:tscompletejob_custom_tsserverlibrary = "/path/to/tsserverlibrary.js"
+let g:tscompletejob_custom_tsserver = "/path/to/tsserver.js"
 ```
 
 Settings and Customization
