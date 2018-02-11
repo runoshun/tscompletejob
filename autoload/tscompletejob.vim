@@ -115,13 +115,21 @@ func! tscompletejob#tss_command() abort
     call add(commands, g:tscompletejob_node_cmd)
 
     if (has('win32') || has('win64'))
-        call add(commands, escape(s:script_dir . "\\tscompletejob\\tsswrapper\\tsswrapper.js", "\\"))
+        call add(commands, escape(s:script_dir . "\\tscompletejob\\tsswrapper\\index.js", "\\"))
     else
-        call add(commands, s:script_dir . "/tscompletejob/tsswrapper/tsswrapper.js")
+        call add(commands, s:script_dir . "/tscompletejob/tsswrapper/index.js")
     endif
 
     if (exists("g:tscompletejob_custom_tsserverlibrary"))
+        if (!exists("g:tscompletejob_use_legacy"))
+            echoerr "'g:tscompletejob_custom_tsserverlibrary' is deprecated, if you want use typescript 2.3 or higher, " .
+                        \ "use 'g:tscompletejob_custom_tsserver' instead. Or, you want use typescript 2.0 - 2.2, " .
+                        \ "set 'g:tscompletejob_use_legacy' to 1."
+        endif
+        call add(commands, "--useLegacy")
         call add(commands, g:tscompletejob_custom_tsserverlibrary)
+    elseif (exists("g:tscompletejob_custom_tsserver"))
+        call add(commands, g:tscompletejob_custom_tsserver)
     endif
 
     return commands
@@ -613,6 +621,8 @@ func! tscompletejob#init_plugin(force)
 
     call s:defineConfg(a:force, "g:tscompletejob_node_cmd", "node")
     call s:defineConfg(a:force, "g:tscompletejob_custom_tsserverlibrary")
+    call s:defineConfg(a:force, "g:tscompletejob_use_legacy")
+    call s:defineConfg(a:force, "g:tscompletejob_custom_tsserver")
     call s:defineConfg(a:force, "g:tscompletejob_autoload_filetypes", [".ts", ".tsx"])
     call s:defineConfg(a:force, "g:tscompletejob_load_on_buf_open", 1)
     call s:defineConfg(a:force, "g:tscompletejob_ignore_file_patterns", [])

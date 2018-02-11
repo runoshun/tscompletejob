@@ -89,11 +89,22 @@ g:tscompletejob_node_cmd = "node"
 
                                       *g:tscompletejob_custom_tsserverlibrary*
 g:tscompletejob_custom_tsserverlibrary = (undefined)
+            (deprecated)
+            If you want use typescript 2.3 or higher, use
+            |g:tscompletejob_custom_tsserver| instead.
+
             The path of tsserverlibrary.js. If you need to use different
             version of typescript shipped with this plugin, please set
             this variable. tsserverlibrary.js is included in typescript 2.0
             or higher, and it placed at 
             "<typescirpt_install_dir>/lib/tsserverlibrary.js".
+
+                                             *g:tscompletejob_custom_tsserver*
+g:tscompletejob_custom_tsserver = (undefined)
+            The path of tsserver.js. If you need to use different version of
+            typescript shipped with this plugin, please set this variable.
+            tsserver.js is included typescript npm package, and it is placed
+            at "<typescirpt_install_dir>/lib/tsserver.js".
 
                                           *g:tscompletejob_autoload_filetypes*
 g:tscompletejob_autoload_filetypes = ["ts", "tsx"]

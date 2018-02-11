@@ -93,10 +93,21 @@ g:tscompletejob_node_cmd = "node"
 
                                       *g:tscompletejob_custom_tsserverlibrary*
 g:tscompletejob_custom_tsserverlibrary = (undefined)
+            (非推奨)
+            typescript 2.3以上を利用する場合は|g:tscompletejob_custom_tsserver|
+            を利用してください。
+
             カスタムtsserverlibrary.jsのパス。プラグイン同梱とは異なるバージ
             ョンのtypescriptを利用する場合に指定します。tsserverlibrary.jsは
             typescript2.0以上に同梱されており、"<typescirpt_install_dir>
             /lib/tsserverlibrary.js"に格納されています。
+
+                                             *g:tscompletejob_custom_tsserver*
+g:tscompletejob_custom_tsserver = (undefined)
+            カスタムtsserver.jsのパス。プラグイン同梱とは異なるバージ ョンの
+            typescriptを利用する場合に指定します。tsserver.jsはtypescriptに
+            同梱されており、"<typescirpt_install_dir>/lib/tsserver.js"に格納
+            されています。
 
                                           *g:tscompletejob_autoload_filetypes*
 g:tscompletejob_autoload_filetypes = ["ts", "tsx"]

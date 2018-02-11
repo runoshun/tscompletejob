@@ -26,7 +26,7 @@ Execute (tss_command returns default):
   let cmds = tscompletejob#tss_command()
   AssertEqual 2, len(cmds)
   AssertEqual "node", cmds[0]
-  Assert stridx(cmds[1], "tsswrapper.js") != -1
+  Assert stridx(cmds[1], "index.js") != -1
 
 Execute (tss_command customizable with node_cmd):
   let g:tscompletejob_node_cmd = "custom_node"
@@ -36,9 +36,17 @@ Execute (tss_command customizable with node_cmd):
 
 Execute (tss_command customizable with custom_tsserverlibrary):
   let g:tscompletejob_custom_tsserverlibrary = "custom_tssserverlib.js"
+  let g:tscompletejob_use_legacy = 1
+  let cmds = tscompletejob#tss_command()
+  AssertEqual 4, len(cmds)
+  AssertEqual "--useLegacy", cmds[2]
+  AssertEqual "custom_tssserverlib.js", cmds[3]
+
+Execute (tss_command customizable with custom_tsserver):
+  let g:tscompletejob_custom_tsserver = "custom_tssserver.js"
   let cmds = tscompletejob#tss_command()
   AssertEqual 3, len(cmds)
-  AssertEqual "custom_tssserverlib.js", cmds[2]
+  AssertEqual "custom_tssserver.js", cmds[2]
 
 Execute (status returns 'run' after send command):
   AssertEqual "not started", tscompletejob#status()
@@ -200,17 +208,17 @@ Execute (codefix can be applied correctly):
   call cursor(6, 7)
   call tscompletejob#codefix(1)
 
-  AssertEqual "abstract class Greeter {",                             getline(2)
-  AssertEqual "    abstract greet(): String;",                        getline(3)
-  AssertEqual "}",                                                    getline(4)
+  AssertEqual "abstract class Greeter {",                               getline(2)
+  AssertEqual "    abstract greet(): String;",                          getline(3)
+  AssertEqual "}",                                                      getline(4)
 
-  AssertEqual "class Person extends Greeter {",                       getline(6)
-  AssertEqual "    greet(): String {",                                getline(7)
-  AssertEqual "        throw new Error('Method not implemented.');",  getline(8)
-  AssertEqual "    }",                                                getline(9)
+  AssertEqual "class Person extends Greeter {",                         getline(6)
+  AssertEqual "    greet(): String {",                                  getline(7)
+  AssertEqual "        throw new Error(\"Method not implemented.\");",  getline(8)
+  AssertEqual "    }",                                                  getline(9)
 
 
-  AssertEqual "}",                                                    getline(12)
+  AssertEqual "}",                                                      getline(12)
   normal u
 
 

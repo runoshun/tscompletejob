@@ -4,9 +4,15 @@
   "description": "tsserver wrapper for tscompletejob.vim",
   "main": "tsswrapper.js",
   "dependencies": {
-    "typescript": ">=2.2.0"
+    "typescript": "2.7.1"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@types/jest": "^22.1.1",
+    "@types/node": "^9.4.0",
+    "@types/tmp": "^0.0.33",
+    "jest": "^22.2.1",
+    "tmp": "^0.0.33"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
