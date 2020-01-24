@@ -1,3 +1,6 @@
+This repository is no longer maintained.
+============================
+
 [![Build Status](https://travis-ci.org/runoshun/tscompletejob.svg?branch=master)](https://travis-ci.org/runoshun/tscompletejob)
 
 tscompletejob-vim
